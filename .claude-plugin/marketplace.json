@@ -16,6 +16,14 @@
       "version": "1.0.0",
       "keywords": ["automation", "iteration", "ralph-loop", "task-detection"],
       "category": "productivity"
+    },
+    {
+      "name": "ultrathink-engine",
+      "source": "./plugins/ultrathink-engine",
+      "description": "Deep multi-perspective analysis. Use when user says ULTRATHINK, asks for brutal honesty, comprehensive analysis, or 'all points of view'.",
+      "version": "1.0.0",
+      "keywords": ["analysis", "thinking", "deep-dive", "ultrathink"],
+      "category": "productivity"
     }
   ]
 }
