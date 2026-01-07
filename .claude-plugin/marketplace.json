@@ -1,0 +1,21 @@
+{
+  "name": "nalyk-skills",
+  "owner": {
+    "name": "nalyk"
+  },
+  "metadata": {
+    "description": "Custom Claude Code skills and tools",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "auto-ralph",
+      "source": "./plugins/auto-ralph",
+      "description": "Proactively detects tasks suitable for Ralph Loop iteration. Auto-scores tasks, generates prompts, and executes with configurable iterations.",
+      "version": "1.0.0",
+      "keywords": ["automation", "iteration", "ralph-loop", "task-detection"],
+      "category": "productivity"
+    }
+  ]
+}
