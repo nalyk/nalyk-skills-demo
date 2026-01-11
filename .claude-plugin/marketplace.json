@@ -24,6 +24,14 @@
       "version": "1.0.0",
       "keywords": ["analysis", "thinking", "deep-dive", "ultrathink"],
       "category": "productivity"
+    },
+    {
+      "name": "orchestrator",
+      "source": "./plugins/orchestrator",
+      "description": "Multi-agent orchestration with task decomposition, parallel execution, and smart agent routing. Commands: /orchestrate, /parallel, /plan-only",
+      "version": "1.0.0",
+      "keywords": ["orchestration", "parallel", "multi-agent", "decomposition", "workflow"],
+      "category": "productivity"
     }
   ]
 }
