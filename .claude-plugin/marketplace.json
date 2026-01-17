@@ -32,6 +32,14 @@
       "version": "1.0.0",
       "keywords": ["orchestration", "parallel", "multi-agent", "decomposition", "workflow"],
       "category": "productivity"
+    },
+    {
+      "name": "audit-agent",
+      "source": "./plugins/audit-agent",
+      "description": "Multi-framework audit agent: Jobs (design simplification), Carlin (BS detection), Vibe (engineering quality). Auto-detects contexts. Commands: /jobs-audit, /carlin-audit, /vibe-audit, /multi-audit",
+      "version": "1.0.0",
+      "keywords": ["audit", "design", "engineering", "bs-detector", "code-review"],
+      "category": "productivity"
     }
   ]
 }
