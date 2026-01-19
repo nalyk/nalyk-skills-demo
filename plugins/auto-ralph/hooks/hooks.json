@@ -1,0 +1,16 @@
+{
+  "description": "Auto-ralph deterministic activation hook - ensures every task is scored for Ralph Loop suitability",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/userpromptsubmit.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -67,17 +67,24 @@ timeout 120 gemini "..." --yolo 2>/dev/null || echo '{"error":"gemini_failed"}'
 # Basic invocation (exec subcommand for non-interactive)
 codex exec "Your prompt here" --full-auto
 
-# With timeout
-timeout 120 codex exec "Your prompt here" --full-auto 2>/dev/null
+# With timeout (NOTE: redirect to file due to TUI output quirk)
+CODEX_OUT="/tmp/codex-out-$$.txt"
+cd /tmp && timeout 120 codex exec "Your prompt here" --full-auto --skip-git-repo-check > "$CODEX_OUT" 2>&1
+cat "$CODEX_OUT"
+rm -f "$CODEX_OUT"
 
 # Error handling
-timeout 120 codex exec "..." --full-auto 2>/dev/null || echo '{"error":"codex_failed"}'
+CODEX_OUT="/tmp/codex-out-$$.txt"
+cd /tmp && timeout 120 codex exec "..." --full-auto --skip-git-repo-check > "$CODEX_OUT" 2>&1 || echo '{"error":"codex_failed"}'
 ```
 
 **Flags:**
 - `exec` - Non-interactive subcommand (required for headless operation)
 - Positional prompt - First argument after `exec` is the prompt
 - `--full-auto` - Full automation mode (no confirmations, sandboxed)
+- `--skip-git-repo-check` - Required when running from /tmp or non-git directories
+
+**IMPORTANT:** Codex CLI uses a TUI that doesn't pipe correctly. Always redirect to a file first, then read the file.
 
 ### Qwen
 
@@ -123,7 +130,10 @@ qwen --version 2>/dev/null | head -1
 # Quick auth test - ask for a specific response
 timeout 30 gemini "respond with exactly: DEBATE_AUTH_OK" --yolo 2>/dev/null | grep -q "DEBATE_AUTH_OK"
 
-timeout 30 codex exec "respond with exactly: DEBATE_AUTH_OK" --full-auto 2>/dev/null | grep -q "DEBATE_AUTH_OK"
+# Codex requires file redirect due to TUI output
+CODEX_OUT="/tmp/codex-auth-$$.txt"
+cd /tmp && timeout 60 codex exec "respond with exactly: DEBATE_AUTH_OK" --full-auto --skip-git-repo-check > "$CODEX_OUT" 2>&1
+grep -q "DEBATE_AUTH_OK" "$CODEX_OUT"; rm -f "$CODEX_OUT"
 
 timeout 30 qwen -p "respond with exactly: DEBATE_AUTH_OK" --yolo 2>/dev/null | grep -q "DEBATE_AUTH_OK"
 ```
@@ -185,7 +195,8 @@ For Phase 2 (parallel challenge), run all CLIs simultaneously:
 gemini "..." --yolo > /tmp/debate-gemini.json 2>&1 &
 PID_GEMINI=$!
 
-codex exec "..." --full-auto > /tmp/debate-codex.json 2>&1 &
+# Codex must run from /tmp with skip-git-repo-check
+(cd /tmp && codex exec "..." --full-auto --skip-git-repo-check > /tmp/debate-codex.json 2>&1) &
 PID_CODEX=$!
 
 qwen -p "..." --yolo > /tmp/debate-qwen.json 2>&1 &

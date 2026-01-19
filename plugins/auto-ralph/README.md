@@ -1,9 +1,24 @@
 # auto-ralph
 
-Proactively detects tasks suitable for Ralph Loop iteration.
+Deterministic Ralph Loop activation via UserPromptSubmit hook.
+
+## v2.0 Changes
+
+**Problem solved:** In v1.0, skill activation was probabilistic - Claude had to recognize when to invoke the skill, which wasn't guaranteed.
+
+**Solution:** Added a `UserPromptSubmit` hook that injects a scoring reminder into EVERY user prompt, ensuring Claude always evaluates tasks for Ralph Loop suitability.
+
+## Architecture
+
+```
+User prompt → Hook injects scoring reminder → Claude scores (0-4) →
+  Score >= 3? → Invoke auto-ralph skill → Generate prompt → Execute ralph-loop
+  Score < 3?  → Normal response
+```
 
 ## Features
 
+- **Deterministic activation** via UserPromptSubmit hook (NEW in v2.0)
 - Auto-scores tasks (0-4) based on clear criteria
 - Generates optimized prompts for iteration
 - Configurable via `~/.claude/auto-ralph.local.md`

@@ -91,16 +91,19 @@ if grep -q "gemini:installed" "$RESULTS_FILE" 2>/dev/null; then
     fi
 fi
 
-# Test Codex auth
+# Test Codex auth (uses file redirect due to TUI output not piping correctly)
 if grep -q "codex:installed" "$RESULTS_FILE" 2>/dev/null; then
     echo -n "codex auth:  "
-    if timeout 30 codex exec "respond with exactly: DEBATE_AUTH_OK" --full-auto 2>/dev/null | grep -q "DEBATE_AUTH_OK"; then
+    CODEX_OUT="/tmp/debate-codex-auth-$$.txt"
+    cd /tmp && timeout 60 codex exec "respond with exactly: DEBATE_AUTH_OK" --full-auto --skip-git-repo-check > "$CODEX_OUT" 2>&1
+    if grep -q "DEBATE_AUTH_OK" "$CODEX_OUT" 2>/dev/null; then
         echo "VERIFIED"
         echo "codex:auth_ok" >> "$AUTH_RESULTS"
     else
         echo "FAILED (check: codex auth)"
         echo "codex:auth_fail" >> "$AUTH_RESULTS"
     fi
+    rm -f "$CODEX_OUT"
 fi
 
 # Test Qwen auth

@@ -65,12 +65,17 @@ IMPORTANT:
 ```bash
 PROMPT='[INSERT FORMATTED PROMPT HERE]'
 
-timeout 120 codex exec "$PROMPT" --full-auto 2>/dev/null
+# NOTE: Codex TUI output doesn't pipe correctly - must redirect to file
+CODEX_OUT="/tmp/codex-debate-$$.txt"
+cd /tmp && timeout 120 codex exec "$PROMPT" --full-auto --skip-git-repo-check > "$CODEX_OUT" 2>&1
+EXIT_CODE=$?
 
-# If timeout or error:
-if [ $? -ne 0 ]; then
+if [ $EXIT_CODE -ne 0 ]; then
     echo '{"error": "codex_invocation_failed", "model": "codex"}'
+else
+    cat "$CODEX_OUT"
 fi
+rm -f "$CODEX_OUT"
 ```
 
 ## Output
