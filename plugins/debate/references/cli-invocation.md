@@ -46,56 +46,56 @@ qwen auth login
 ### Gemini
 
 ```bash
-# Basic invocation
-gemini -p "Your prompt here" --output-format json --yolo
+# Basic invocation (positional prompt)
+gemini "Your prompt here" --yolo
 
 # With timeout
-timeout 120 gemini -p "Your prompt here" --output-format json --yolo 2>/dev/null
+timeout 120 gemini "Your prompt here" --yolo 2>/dev/null
 
 # Error handling
-timeout 120 gemini -p "..." --output-format json --yolo 2>/dev/null || echo '{"error":"gemini_failed"}'
+timeout 120 gemini "..." --yolo 2>/dev/null || echo '{"error":"gemini_failed"}'
 ```
 
 **Flags:**
-- `-p "prompt"` - Non-interactive prompt mode
-- `--output-format json` - JSON output for parsing
+- Positional prompt - First argument is the prompt (non-interactive mode)
 - `--yolo` - Skip confirmation prompts (for automation)
+- Note: `--output-format json` is deprecated, CLI returns plain text
 
 ### Codex
 
 ```bash
-# Basic invocation
-codex -p "Your prompt here" --output-format json --full-auto
+# Basic invocation (exec subcommand for non-interactive)
+codex exec "Your prompt here" --full-auto
 
 # With timeout
-timeout 120 codex -p "Your prompt here" --output-format json --full-auto 2>/dev/null
+timeout 120 codex exec "Your prompt here" --full-auto 2>/dev/null
 
 # Error handling
-timeout 120 codex -p "..." --output-format json --full-auto 2>/dev/null || echo '{"error":"codex_failed"}'
+timeout 120 codex exec "..." --full-auto 2>/dev/null || echo '{"error":"codex_failed"}'
 ```
 
 **Flags:**
-- `-p "prompt"` - Non-interactive prompt mode
-- `--output-format json` - JSON output for parsing
-- `--full-auto` - Full automation mode (no confirmations)
+- `exec` - Non-interactive subcommand (required for headless operation)
+- Positional prompt - First argument after `exec` is the prompt
+- `--full-auto` - Full automation mode (no confirmations, sandboxed)
 
 ### Qwen
 
 ```bash
 # Basic invocation
-qwen -p "Your prompt here" --output-format json --yolo
+qwen -p "Your prompt here" --yolo
 
 # With timeout
-timeout 120 qwen -p "Your prompt here" --output-format json --yolo 2>/dev/null
+timeout 120 qwen -p "Your prompt here" --yolo 2>/dev/null
 
 # Error handling
-timeout 120 qwen -p "..." --output-format json --yolo 2>/dev/null || echo '{"error":"qwen_failed"}'
+timeout 120 qwen -p "..." --yolo 2>/dev/null || echo '{"error":"qwen_failed"}'
 ```
 
 **Flags:**
-- `-p "prompt"` - Non-interactive prompt mode (same as Gemini, it's a fork)
-- `--output-format json` - JSON output for parsing
+- `-p "prompt"` - Non-interactive prompt mode
 - `--yolo` - Skip confirmation prompts
+- Note: `--output-format json` is deprecated, CLI returns plain text
 
 ---
 
@@ -121,9 +121,9 @@ qwen --version 2>/dev/null | head -1
 
 ```bash
 # Quick auth test - ask for a specific response
-timeout 30 gemini -p "respond with exactly: DEBATE_AUTH_OK" --yolo 2>/dev/null | grep -q "DEBATE_AUTH_OK"
+timeout 30 gemini "respond with exactly: DEBATE_AUTH_OK" --yolo 2>/dev/null | grep -q "DEBATE_AUTH_OK"
 
-timeout 30 codex -p "respond with exactly: DEBATE_AUTH_OK" --full-auto 2>/dev/null | grep -q "DEBATE_AUTH_OK"
+timeout 30 codex exec "respond with exactly: DEBATE_AUTH_OK" --full-auto 2>/dev/null | grep -q "DEBATE_AUTH_OK"
 
 timeout 30 qwen -p "respond with exactly: DEBATE_AUTH_OK" --yolo 2>/dev/null | grep -q "DEBATE_AUTH_OK"
 ```
@@ -166,7 +166,7 @@ Default timeout: 120 seconds per CLI invocation.
 
 ```bash
 # Using timeout command
-timeout 120 gemini -p "..." --output-format json --yolo
+timeout 120 gemini "..." --yolo
 
 # Check exit code
 if [ $? -eq 124 ]; then
@@ -182,13 +182,13 @@ For Phase 2 (parallel challenge), run all CLIs simultaneously:
 
 ```bash
 # Launch in background
-gemini -p "..." --output-format json --yolo > /tmp/debate-gemini.json 2>&1 &
+gemini "..." --yolo > /tmp/debate-gemini.json 2>&1 &
 PID_GEMINI=$!
 
-codex -p "..." --output-format json --full-auto > /tmp/debate-codex.json 2>&1 &
+codex exec "..." --full-auto > /tmp/debate-codex.json 2>&1 &
 PID_CODEX=$!
 
-qwen -p "..." --output-format json --yolo > /tmp/debate-qwen.json 2>&1 &
+qwen -p "..." --yolo > /tmp/debate-qwen.json 2>&1 &
 PID_QWEN=$!
 
 # Wait for all

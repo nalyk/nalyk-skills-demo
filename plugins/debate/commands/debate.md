@@ -140,17 +140,17 @@ If you truly agree after honest analysis, explain WHY the position is solid.
 
 For Gemini:
 ```bash
-timeout 120 gemini -p "[PROMPT]" --output-format json --yolo 2>/dev/null || echo '{"error":"gemini_timeout"}'
+timeout 120 gemini "[PROMPT]" --yolo 2>/dev/null || echo '{"error":"gemini_timeout"}'
 ```
 
 For Codex:
 ```bash
-timeout 120 codex -p "[PROMPT]" --output-format json --full-auto 2>/dev/null || echo '{"error":"codex_timeout"}'
+timeout 120 codex exec "[PROMPT]" --full-auto 2>/dev/null || echo '{"error":"codex_timeout"}'
 ```
 
 For Qwen:
 ```bash
-timeout 120 qwen -p "[PROMPT]" --output-format json --yolo 2>/dev/null || echo '{"error":"qwen_timeout"}'
+timeout 120 qwen -p "[PROMPT]" --yolo 2>/dev/null || echo '{"error":"qwen_timeout"}'
 ```
 
 ### Collect all critiques

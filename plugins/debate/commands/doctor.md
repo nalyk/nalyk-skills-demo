@@ -82,7 +82,7 @@ touch "$AUTH_RESULTS"
 # Test Gemini auth
 if grep -q "gemini:installed" "$RESULTS_FILE" 2>/dev/null; then
     echo -n "gemini auth: "
-    if timeout 30 gemini -p "respond with exactly: DEBATE_AUTH_OK" --yolo 2>/dev/null | grep -q "DEBATE_AUTH_OK"; then
+    if timeout 30 gemini "respond with exactly: DEBATE_AUTH_OK" --yolo 2>/dev/null | grep -q "DEBATE_AUTH_OK"; then
         echo "VERIFIED"
         echo "gemini:auth_ok" >> "$AUTH_RESULTS"
     else
@@ -94,7 +94,7 @@ fi
 # Test Codex auth
 if grep -q "codex:installed" "$RESULTS_FILE" 2>/dev/null; then
     echo -n "codex auth:  "
-    if timeout 30 codex -p "respond with exactly: DEBATE_AUTH_OK" --full-auto 2>/dev/null | grep -q "DEBATE_AUTH_OK"; then
+    if timeout 30 codex exec "respond with exactly: DEBATE_AUTH_OK" --full-auto 2>/dev/null | grep -q "DEBATE_AUTH_OK"; then
         echo "VERIFIED"
         echo "codex:auth_ok" >> "$AUTH_RESULTS"
     else

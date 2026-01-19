@@ -65,7 +65,7 @@ IMPORTANT:
 ```bash
 PROMPT='[INSERT FORMATTED PROMPT HERE]'
 
-timeout 120 codex -p "$PROMPT" --output-format json --full-auto 2>/dev/null
+timeout 120 codex exec "$PROMPT" --full-auto 2>/dev/null
 
 # If timeout or error:
 if [ $? -ne 0 ]; then
@@ -97,6 +97,7 @@ If Codex returns non-JSON, wrap it:
 
 ## Codex-Specific Notes
 
+- Codex uses `exec` subcommand for non-interactive mode
 - Codex uses `--full-auto` instead of `--yolo`
 - Requires ChatGPT Plus subscription for authentication
-- May have different JSON formatting than Gemini/Qwen
+- May have different output formatting than Gemini/Qwen

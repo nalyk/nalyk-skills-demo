@@ -65,7 +65,7 @@ IMPORTANT:
 ```bash
 PROMPT='[INSERT FORMATTED PROMPT HERE]'
 
-timeout 120 gemini -p "$PROMPT" --output-format json --yolo 2>/dev/null
+timeout 120 gemini "$PROMPT" --yolo 2>/dev/null
 
 # If timeout or error:
 if [ $? -ne 0 ]; then
