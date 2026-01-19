@@ -45,3 +45,36 @@ $ARGUMENTS
 - Maximum 4 parallel tasks
 - No dependency analysis (all run simultaneously)
 - Best for: obvious parallelization with independent tasks
+
+## Error Handling
+
+When one or more parallel tasks fail:
+
+1. **Partial results are returned** - Successful tasks still provide their output
+2. **Failed tasks are clearly marked** with error description
+3. **No automatic retry** - User decides whether to retry failed tasks
+
+### Failure Output Format
+
+```
+PARALLEL EXECUTION RESULTS
+──────────────────────────
+[1] explore:find API routes     ✓ Complete
+[2] explore:check coverage      ✗ FAILED: Timeout after 120s
+[3] review auth flow            ✓ Complete
+
+Successful: 2/3
+Failed: 1/3
+
+Failed task details:
+- [2] Timeout - consider breaking into smaller scope or using /orchestrate for complex tasks
+```
+
+### When to Use /orchestrate Instead
+
+If your parallel tasks:
+- Have dependencies between them
+- Require error recovery with context
+- Need sophisticated retry logic
+
+Consider using `/orchestrate` which provides full error handling with retry, skip, and cancel options.

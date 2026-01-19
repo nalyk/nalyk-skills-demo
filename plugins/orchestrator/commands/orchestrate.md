@@ -9,7 +9,9 @@ Full orchestration workflow for complex multi-part tasks.
 
 ## Workflow
 
-1. **Invoke orchestrator skill** to analyze this request
+1. **Analyze request using orchestrator skill** (`skills/orchestrator/SKILL.md`)
+   - The skill is automatically loaded and provides the orchestration protocol
+   - It assesses complexity, decomposes tasks, and routes to appropriate agents
 2. **Review execution plan** returned by the skill
 3. **Confirm with user** if `confirm_before_execute: true`
 4. **Execute phases:**
@@ -38,3 +40,57 @@ If a workstream fails:
 1. Report failure clearly
 2. Offer retry, skip, or cancel options
 3. Do not proceed with dependent workstreams until resolved
+
+## Output Format
+
+Orchestration results follow a structured format for consistency and parseability.
+
+### Completion Output
+
+```
+ORCHESTRATION COMPLETE
+══════════════════════════════════════════════
+
+**Summary:**
+- Workstreams: [N]/[M] complete
+- Total time: [duration]
+- Phases: [count]
+
+**Deliverables:**
+1. [Type] [Description] - [location]
+2. [Type] [Description] - [location]
+
+**Files Modified:**
+- [file path] (created|updated)
+
+**Notes:**
+- [observations and recommendations]
+
+══════════════════════════════════════════════
+```
+
+### Partial Failure Output
+
+```
+PARTIAL COMPLETION
+══════════════════════════════════════════════
+
+**Completed:** [N-1]/[N] workstreams
+
+**Successful:**
+- [Workstream] - ✓
+
+**Failed:**
+- [Workstream] - ✗
+  Error: [description]
+  Impact: [affected downstream work]
+
+**Options:**
+1. Retry failed workstream
+2. Accept partial results
+3. Cancel orchestration
+
+══════════════════════════════════════════════
+```
+
+For full output format specification, see: `skills/orchestrator/references/synthesis-rules.md`
