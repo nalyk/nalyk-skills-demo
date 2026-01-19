@@ -18,14 +18,6 @@
       "category": "productivity"
     },
     {
-      "name": "ultrathink-engine",
-      "source": "./plugins/ultrathink-engine",
-      "description": "Deep multi-perspective analysis. Use when user says ULTRATHINK, asks for brutal honesty, comprehensive analysis, or 'all points of view'.",
-      "version": "1.0.0",
-      "keywords": ["analysis", "thinking", "deep-dive", "ultrathink"],
-      "category": "productivity"
-    },
-    {
       "name": "orchestrator",
       "source": "./plugins/orchestrator",
       "description": "Multi-agent orchestration with task decomposition, parallel execution, and smart agent routing. Commands: /orchestrate, /parallel, /plan-only",
@@ -39,6 +31,14 @@
       "description": "Multi-framework audit agent: Jobs (design simplification), Carlin (BS detection), Vibe (engineering quality). Auto-detects contexts. Commands: /jobs-audit, /carlin-audit, /vibe-audit, /multi-audit",
       "version": "1.0.0",
       "keywords": ["audit", "design", "engineering", "bs-detector", "code-review"],
+      "category": "productivity"
+    },
+    {
+      "name": "debate",
+      "source": "./plugins/debate",
+      "description": "Multi-model adversarial debate. Claude defends positions against external CLI models (Gemini, Codex, Qwen). Requires at least 1 external CLI. Produces tradeoff documents exposing hidden assumptions. Commands: /debate, /debate:doctor, /debate:adr",
+      "version": "1.0.0",
+      "keywords": ["debate", "multi-model", "adversarial", "decision-support", "tradeoffs", "gemini", "codex", "qwen"],
       "category": "productivity"
     }
   ]
