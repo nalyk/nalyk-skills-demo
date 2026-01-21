@@ -9,10 +9,23 @@ This plugin uses a hybrid protocol: **parallel first, sequential if needed**.
 │                      DEBATE FLOW                                 │
 └─────────────────────────────────────────────────────────────────┘
 
-Phase 0: PREFLIGHT
+Phase 0: WORKSPACE SETUP & PERSONA GENERATION  ← NEW
+    │
+    ├── Create workspace directory: ./debates/NNN-topic-slug/
+    ├── Detect topic domain
+    ├── Invoke debate-persona-generator skill
+    ├── Generate THREE DISTINCT expert personas:
+    │   ├── workspace/GEMINI.md  (Architect perspective)
+    │   ├── workspace/AGENTS.md  (Operator perspective)
+    │   └── workspace/QWEN.md    (Adversary perspective)
+    └── Verify all context files exist
+          │
+          ▼
+Phase 0.5: PREFLIGHT
     │
     ├── Check /tmp/debate-available-challengers
     ├── If empty → ABORT (run /debate:doctor)
+    ├── Verify CLIs can read context files (test invocation)
     └── If available → Continue
           │
           ▼
@@ -27,12 +40,18 @@ Phase 1: CLAUDE'S OPENING
           ▼
 Phase 2: PARALLEL CHALLENGE ←─────────────────────┐
     │                                              │
-    ├── Launch ALL challengers simultaneously      │
-    │   ├── gemini -p "..." --yolo                │
-    │   ├── codex -p "..." --full-auto            │
-    │   └── qwen -p "..." --yolo                  │
+    ├── Launch ALL challengers FROM WORKSPACE:     │
+    │   ├── cd workspace && gemini "..." --yolo   │
+    │   ├── cd workspace && codex exec "..."      │
+    │   └── cd workspace && qwen -p "..." --yolo  │
+    │                                              │
+    │   Each CLI reads its context file:           │
+    │   ├── Gemini reads GEMINI.md (Architect)    │
+    │   ├── Codex reads AGENTS.md (Operator)      │
+    │   └── Qwen reads QWEN.md (Adversary)        │
+    │                                              │
     ├── Collect JSON responses                     │
-    └── Parse verdicts                             │
+    └── Parse verdicts (expect DIFFERENT angles)   │
           │                                        │
           ▼                                        │
 Phase 3: CONSENSUS CHECK                           │
@@ -54,6 +73,7 @@ Phase 4: CLAUDE RESPONDS (Confrontation)
 Phase 5: CHALLENGER REBUTTAL
     │
     ├── Send Claude's response to dissenters
+    ├── CLIs still run FROM WORKSPACE (same personas)
     ├── Ask: ACCEPT / MAINTAIN / ESCALATE
     └── Collect responses
           │
@@ -81,6 +101,56 @@ Phase 8: FINAL OUTPUT
 
 ---
 
+## Phase 0: Persona Generation (NEW)
+
+### Purpose
+
+Generate **three distinct expert challengers** that critique from different angles. This is NOT three copies of the same challenger - each brings unique expertise.
+
+### The Three Perspectives
+
+| Context File | CLI | Perspective | Catches |
+|--------------|-----|-------------|---------|
+| `GEMINI.md` | Gemini | **Architect** | Scaling, complexity, design flaws |
+| `AGENTS.md` | Codex | **Operator** | Maintenance, failure modes, debugging |
+| `QWEN.md` | Qwen | **Adversary** | Security, edge cases, abuse scenarios |
+
+### Generation Process
+
+1. **Detect domain** from topic
+2. **Invoke `debate-persona-generator` skill**
+3. **Write three context files** to workspace
+4. **Verify** each file contains distinct persona
+
+### Workspace Structure
+
+```
+debates/
+└── 001-redis-vs-memcached/
+    ├── GEMINI.md          # Architect persona (for Gemini CLI)
+    ├── AGENTS.md          # Operator persona (for Codex CLI)
+    ├── QWEN.md            # Adversary persona (for Qwen CLI)
+    ├── context.md         # Initial context
+    ├── state.json         # Session state
+    ├── transcript.md      # Combined record
+    └── rounds/
+        ├── r001_gemini.md
+        ├── r001_codex.md
+        ├── r001_qwen.md
+        └── ...
+```
+
+### Context File Persistence
+
+**CRITICAL:** Context files are written ONCE at debate start and remain UNCHANGED throughout all rounds.
+
+- ✅ Personas stay consistent across rounds
+- ✅ Each CLI re-reads its context file on each invocation (fresh process)
+- ✅ Persona provides stable "expert identity"
+- ❌ Do NOT modify context files mid-debate
+
+---
+
 ## Consensus Rules
 
 ### Fast Exit Conditions
@@ -99,11 +169,18 @@ Phase 8: FINAL OUTPUT
 | Any `objection_strength: "strong"` | Confrontation required |
 | Mixed verdicts (some agree, some disagree) | Confrontation required |
 
+### Multi-Perspective Value
+
+Because each challenger has a DIFFERENT expertise angle:
+- Agreement from all three = strong signal (validated from multiple angles)
+- Disagreement reveals which ASPECT has flaws (scaling? operations? security?)
+- Partial consensus shows where position is solid vs. weak
+
 ### Skepticism Rule
 
-If a challenger agrees in round 1, ask:
-- Did they engage seriously or rubber-stamp?
-- Is the agreement substantive?
+If a challenger agrees in round 1, check:
+- Did they engage from their specific expertise angle?
+- Is the agreement substantive to their domain?
 
 If suspicious, treat as `partial` and continue.
 
@@ -115,7 +192,7 @@ If suspicious, treat as `partial` and continue.
 |---------|---------|-------|
 | MAX_ROUNDS | 5 | Configurable in settings |
 | TIMEOUT_PER_CLI | 120s | Per CLI invocation |
-| MIN_CHALLENGERS | 1 | Hard requirement, not configurable |
+| MIN_CHALLENGERS | 1 | At least one must respond |
 
 After MAX_ROUNDS without consensus → Assumption extraction → Tradeoff document
 
@@ -128,8 +205,11 @@ Track every change to Claude's position:
 ```
 Position History:
 - v1 (opening): [position]
-- v2 (after round 1): [position] — Changed because: [reason from challenger]
-- v3 (after round 2): [position] — Changed because: [reason from challenger]
+- v2 (after round 1): [position]
+  └── Changed because: Architect found scaling flaw
+  └── Changed because: Operator identified observability gap
+- v3 (after round 2): [position]
+  └── Changed because: Adversary found trust boundary issue
 - vN (final): [position]
 ```
 
@@ -146,6 +226,7 @@ This evolution is the audit trail that makes debates valuable.
 | Timeout | Log, continue with other challengers |
 | Auth failure | Log, continue with other challengers |
 | Parse error | Wrap raw response, continue |
+| Context file missing | Abort that challenger, log error |
 | All CLIs fail | Abort debate with error |
 
 ### Minimum Viability
@@ -156,7 +237,8 @@ A debate can continue if:
 
 A debate must abort if:
 - 0 challengers respond
-- Repeated failures prevent any confrontation
+- Workspace creation fails
+- All context file writes fail
 
 ---
 
@@ -170,7 +252,11 @@ A debate must abort if:
 **Final position:** [evolved position]
 **Confidence:** HIGH
 **Rounds to consensus:** N
-**What changed:** [list of accepted critiques]
+**Perspectives validated:**
+- ✅ Architect (Gemini): [summary of their validation]
+- ✅ Operator (Codex): [summary of their validation]
+- ✅ Adversary (Qwen): [summary of their validation]
+**What changed:** [list of accepted critiques by perspective]
 ```
 
 ### No-Consensus Output
@@ -181,8 +267,14 @@ A debate must abort if:
 **Final position:** [Claude's position, contested]
 **Confidence:** MEDIUM
 **Rounds:** MAX (no consensus)
-**Core disagreement:** [description]
-**Assumptions exposed:** [table]
+
+**Perspective Breakdown:**
+- Architect (Gemini): [AGREE/DISAGREE] - [their concern]
+- Operator (Codex): [AGREE/DISAGREE] - [their concern]
+- Adversary (Qwen): [AGREE/DISAGREE] - [their concern]
+
+**Core disagreement:** [which perspective couldn't be resolved]
+**Assumptions exposed:** [table mapping assumptions to perspectives]
 ```
 
 ---
@@ -192,9 +284,8 @@ A debate must abort if:
 This protocol is inspired by:
 
 - **Irving et al. (2018)** - "AI safety via debate" - The foundational paper on AI debate for scalable oversight
-- **Adversarial-spec plugin** - Multi-LLM consensus for specifications
-- **Scalable oversight research** - Debate as a verification mechanism
+- **ExpertPrompting (2023)** - LLM-generated detailed personas outperform simple role prompts
+- **Jekyll & Hyde (2024)** - Ensembling persona and neutral perspectives improves reasoning by ~10%
+- **Multi-agent debate research** - Diverse perspectives catch more flaws than homogeneous critics
 
-Key insight from Irving: "It is easier to judge who wins at chess than to play chess at a grandmaster level."
-
-The debate is a **verification mechanism**, not a generation mechanism. External models verify Claude's reasoning.
+Key insight: **Different expertise angles catch different flaws**. A security expert sees attack vectors an architect misses. An operator sees maintenance nightmares a security expert ignores.

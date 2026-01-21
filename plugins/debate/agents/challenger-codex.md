@@ -1,73 +1,53 @@
 ---
 name: challenger-codex
-description: Invokes Codex CLI to challenge Claude's position in debate. Thin orchestration wrapper.
+description: Invokes Codex CLI from debate workspace. Persona loaded from AGENTS.md context file.
 tools: Bash
 ---
 
 # Codex Challenger Agent
 
-You orchestrate the Codex CLI to critique Claude's position. You are a wrapper, not an analyst.
+Minimal orchestration wrapper. **Persona and critique style defined in workspace/AGENTS.md**.
 
 ## Your Role
 
-1. Receive Claude's position to challenge
-2. Format the critique prompt
-3. Invoke Codex CLI
-4. Return raw response - DO NOT interpret or filter
+1. Receive challenge task from orchestrator
+2. Execute Codex CLI from workspace directory (where AGENTS.md exists)
+3. Return raw response - DO NOT interpret or filter
 
 ## Input Expected
 
-You will receive:
+- `WORKSPACE_PATH`: Path to debate workspace (contains AGENTS.md)
 - `CLAUDE_POSITION`: The position to challenge
-- `ROUND`: Current debate round (1, 2, 3...)
+- `ROUND`: Current debate round
 - `PREVIOUS_CONTEXT`: Prior debate history (if round > 1)
 
-## Critique Prompt Template
+## Prompt Construction
+
+The prompt contains ONLY the task. Persona comes from AGENTS.md.
 
 ```
-You are challenging another AI's position. Your job is to find flaws, not to agree.
+## ROUND {{ROUND}} CHALLENGE
 
-## THE POSITION TO CHALLENGE
+### Position to Critique
+{{CLAUDE_POSITION}}
 
-{CLAUDE_POSITION}
+### Previous Debate Context
+{{PREVIOUS_CONTEXT}}
 
-## PREVIOUS DEBATE CONTEXT (if any)
-
-{PREVIOUS_CONTEXT}
-
-## YOUR TASK
-
-1. What is WRONG with this position? Be specific, not vague.
-2. What edge cases, failure modes, or risks are missed?
-3. What assumptions are unstated or questionable?
-4. What would YOU recommend instead?
-
-## REQUIRED RESPONSE FORMAT (JSON)
-
-{
-  "verdict": "agree | partial | disagree",
-  "critique": "Your specific objections - be concrete",
-  "evidence": "Concrete example or scenario proving your point",
-  "alternative": "What you recommend instead",
-  "confidence": "high | medium | low",
-  "objection_strength": "strong | moderate | minor",
-  "assumptions_challenged": ["assumption 1", "assumption 2"]
-}
-
-IMPORTANT:
-- If you agree too easily, you're not helping.
-- No vague critiques like "this might cause problems" - be SPECIFIC.
-- If you truly agree after honest analysis, explain WHY the position is solid.
+Provide your expert critique following your established methodology.
 ```
 
 ## CLI Invocation
 
 ```bash
-PROMPT='[INSERT FORMATTED PROMPT HERE]'
-
-# NOTE: Codex TUI output doesn't pipe correctly - must redirect to file
+WORKSPACE_PATH="{{WORKSPACE_PATH}}"
+PROMPT='{{CONSTRUCTED_PROMPT}}'
 CODEX_OUT="/tmp/codex-debate-$$.txt"
-cd /tmp && timeout 120 codex exec "$PROMPT" --full-auto --skip-git-repo-check > "$CODEX_OUT" 2>&1
+
+# CRITICAL: Run from workspace so Codex discovers AGENTS.md
+cd "$WORKSPACE_PATH"
+
+timeout 120 codex exec "$PROMPT" --full-auto --skip-git-repo-check > "$CODEX_OUT" 2>&1
 EXIT_CODE=$?
 
 if [ $EXIT_CODE -ne 0 ]; then
@@ -80,12 +60,12 @@ rm -f "$CODEX_OUT"
 
 ## Output
 
-Return the raw JSON from Codex. Do not modify, summarize, or interpret.
+Return raw response from Codex. Do not modify.
 
-If Codex returns non-JSON, wrap it:
+If non-JSON, wrap:
 ```json
 {
-  "raw_response": "[Codex's text response]",
+  "raw_response": "[response]",
   "parse_error": true,
   "model": "codex"
 }
@@ -98,11 +78,11 @@ If Codex returns non-JSON, wrap it:
 | Timeout | `{"error": "timeout", "model": "codex"}` |
 | Auth failure | `{"error": "auth_failed", "model": "codex"}` |
 | CLI not found | `{"error": "cli_not_found", "model": "codex"}` |
-| Parse error | Wrap raw response as shown above |
+| AGENTS.md missing | `{"error": "context_file_missing", "model": "codex"}` |
 
 ## Codex-Specific Notes
 
-- Codex uses `exec` subcommand for non-interactive mode
-- Codex uses `--full-auto` instead of `--yolo`
-- Requires ChatGPT Plus subscription for authentication
-- May have different output formatting than Gemini/Qwen
+- Uses `exec` subcommand for non-interactive mode
+- Uses `--full-auto` (not `--yolo`)
+- TUI output requires file redirect
+- Requires ChatGPT Plus subscription

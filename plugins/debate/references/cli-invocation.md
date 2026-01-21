@@ -1,12 +1,28 @@
 # CLI Invocation Reference
 
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    CONTEXT FILE LOADING                          │
+└─────────────────────────────────────────────────────────────────┘
+
+  debate-workspace/
+  ├── GEMINI.md    ──→  gemini reads at process start (Architect persona)
+  ├── AGENTS.md    ──→  codex reads at process start (Operator persona)
+  └── QWEN.md      ──→  qwen reads at process start (Adversary persona)
+
+  CRITICAL: All CLIs must run FROM the workspace directory
+            so they discover their respective context files.
+```
+
 ## Supported CLIs
 
-| CLI | Package | Auth | Free Tier | Headless Flag |
-|-----|---------|------|-----------|---------------|
-| Gemini | `@google/gemini-cli` | Google OAuth | 1000 req/day | `--yolo` |
-| Codex | `@openai/codex` | ChatGPT Plus | Subscription | `--full-auto` |
-| Qwen | `@qwen-code/qwen-code` | Qwen OAuth | 2000 req/day | `--yolo` |
+| CLI | Package | Context File | Auth | Free Tier | Headless Flag |
+|-----|---------|--------------|------|-----------|---------------|
+| Gemini | `@google/gemini-cli` | `GEMINI.md` | Google OAuth | 1000 req/day | `--yolo` |
+| Codex | `@openai/codex` | `AGENTS.md` | ChatGPT Plus | Subscription | `--full-auto` |
+| Qwen | `@qwen-code/qwen-code` | `QWEN.md` | Qwen OAuth | 2000 req/day | `--yolo` |
 
 ---
 
@@ -41,68 +57,137 @@ qwen auth login
 
 ---
 
-## Headless Invocation Patterns
+## Workspace-Based Invocation (NEW)
 
-### Gemini
+### Why Workspace Matters
+
+Each CLI loads its context file **at process initialization**:
+- Gemini discovers `GEMINI.md` in CWD
+- Codex discovers `AGENTS.md` in CWD
+- Qwen discovers `QWEN.md` in CWD
+
+**You MUST `cd` to workspace before invoking CLI.**
+
+### Gemini (from workspace)
 
 ```bash
-# Basic invocation (positional prompt)
-gemini "Your prompt here" --yolo
+WORKSPACE="/path/to/debates/001-topic"
+PROMPT="Challenge this position: ..."
 
-# With timeout
-timeout 120 gemini "Your prompt here" --yolo 2>/dev/null
+cd "$WORKSPACE"  # CRITICAL: Gemini reads GEMINI.md from CWD
+timeout 120 gemini "$PROMPT" --yolo 2>/dev/null
 
-# Error handling
-timeout 120 gemini "..." --yolo 2>/dev/null || echo '{"error":"gemini_failed"}'
+if [ $? -ne 0 ]; then
+    echo '{"error":"gemini_failed"}'
+fi
 ```
 
-**Flags:**
-- Positional prompt - First argument is the prompt (non-interactive mode)
-- `--yolo` - Skip confirmation prompts (for automation)
-- Note: `--output-format json` is deprecated, CLI returns plain text
+**Context file loaded:** `$WORKSPACE/GEMINI.md`
 
-### Codex
+### Codex (from workspace)
 
 ```bash
-# Basic invocation (exec subcommand for non-interactive)
-codex exec "Your prompt here" --full-auto
-
-# With timeout (NOTE: redirect to file due to TUI output quirk)
+WORKSPACE="/path/to/debates/001-topic"
+PROMPT="Challenge this position: ..."
 CODEX_OUT="/tmp/codex-out-$$.txt"
-cd /tmp && timeout 120 codex exec "Your prompt here" --full-auto --skip-git-repo-check > "$CODEX_OUT" 2>&1
-cat "$CODEX_OUT"
+
+cd "$WORKSPACE"  # CRITICAL: Codex reads AGENTS.md from CWD
+timeout 120 codex exec "$PROMPT" --full-auto --skip-git-repo-check > "$CODEX_OUT" 2>&1
+
+if [ $? -ne 0 ]; then
+    echo '{"error":"codex_failed"}'
+else
+    cat "$CODEX_OUT"
+fi
 rm -f "$CODEX_OUT"
-
-# Error handling
-CODEX_OUT="/tmp/codex-out-$$.txt"
-cd /tmp && timeout 120 codex exec "..." --full-auto --skip-git-repo-check > "$CODEX_OUT" 2>&1 || echo '{"error":"codex_failed"}'
 ```
 
-**Flags:**
-- `exec` - Non-interactive subcommand (required for headless operation)
-- Positional prompt - First argument after `exec` is the prompt
-- `--full-auto` - Full automation mode (no confirmations, sandboxed)
-- `--skip-git-repo-check` - Required when running from /tmp or non-git directories
+**Context file loaded:** `$WORKSPACE/AGENTS.md`
 
-**IMPORTANT:** Codex CLI uses a TUI that doesn't pipe correctly. Always redirect to a file first, then read the file.
-
-### Qwen
+### Qwen (from workspace)
 
 ```bash
-# Basic invocation
-qwen -p "Your prompt here" --yolo
+WORKSPACE="/path/to/debates/001-topic"
+PROMPT="Challenge this position: ..."
 
-# With timeout
-timeout 120 qwen -p "Your prompt here" --yolo 2>/dev/null
+cd "$WORKSPACE"  # CRITICAL: Qwen reads QWEN.md from CWD
+timeout 120 qwen -p "$PROMPT" --yolo 2>/dev/null
 
-# Error handling
-timeout 120 qwen -p "..." --yolo 2>/dev/null || echo '{"error":"qwen_failed"}'
+if [ $? -ne 0 ]; then
+    echo '{"error":"qwen_failed"}'
+fi
 ```
 
-**Flags:**
-- `-p "prompt"` - Non-interactive prompt mode
-- `--yolo` - Skip confirmation prompts
-- Note: `--output-format json` is deprecated, CLI returns plain text
+**Context file loaded:** `$WORKSPACE/QWEN.md`
+
+---
+
+## Parallel Execution (from workspace)
+
+For Phase 2 (parallel challenge), run all CLIs simultaneously FROM WORKSPACE:
+
+```bash
+WORKSPACE="/path/to/debates/001-topic"
+PROMPT="Challenge this position: ..."
+
+# All commands run from workspace directory
+cd "$WORKSPACE"
+
+# Launch in background
+gemini "$PROMPT" --yolo > /tmp/debate-gemini.json 2>&1 &
+PID_GEMINI=$!
+
+# Codex needs file redirect
+(codex exec "$PROMPT" --full-auto --skip-git-repo-check > /tmp/debate-codex.json 2>&1) &
+PID_CODEX=$!
+
+qwen -p "$PROMPT" --yolo > /tmp/debate-qwen.json 2>&1 &
+PID_QWEN=$!
+
+# Wait for all
+wait $PID_GEMINI $PID_CODEX $PID_QWEN
+
+# Collect results
+cat /tmp/debate-gemini.json  # Architect perspective
+cat /tmp/debate-codex.json   # Operator perspective
+cat /tmp/debate-qwen.json    # Adversary perspective
+```
+
+---
+
+## Context File Format
+
+Each context file contains a **unique expert persona**. See `debate-persona-generator` skill for generation.
+
+### Expected Structure
+
+```markdown
+# Expert Challenger Profile
+
+## Identity
+You are [NAME], [TITLE] with [X] years in [DOMAIN].
+
+**Credentials:**
+- [Specific credentials]
+
+## Your Expertise Angle
+[What makes this perspective unique]
+
+## Critique Methodology
+[How this expert analyzes problems]
+
+## Response Format
+{
+  "verdict": "agree | partial | disagree",
+  "critique": "...",
+  "evidence": "...",
+  "alternative": "...",
+  "confidence": "high | medium | low",
+  "objection_strength": "strong | moderate | minor",
+  "assumptions_challenged": ["...", "..."],
+  "your_perspective": "[3-word summary of angle]"
+}
+```
 
 ---
 
@@ -116,99 +201,58 @@ command -v codex &> /dev/null && echo "installed" || echo "missing"
 command -v qwen &> /dev/null && echo "installed" || echo "missing"
 ```
 
-### Get version
+### Test context file loading
 
 ```bash
-gemini --version 2>/dev/null | head -1
-codex --version 2>/dev/null | head -1
-qwen --version 2>/dev/null | head -1
-```
+WORKSPACE="/path/to/debates/test"
+mkdir -p "$WORKSPACE"
 
-### Test authentication
+# Create test context file
+cat > "$WORKSPACE/GEMINI.md" << 'EOF'
+# Test Persona
+You are a test persona. Respond with: CONTEXT_FILE_LOADED
+EOF
 
-```bash
-# Quick auth test - ask for a specific response
-timeout 30 gemini "respond with exactly: DEBATE_AUTH_OK" --yolo 2>/dev/null | grep -q "DEBATE_AUTH_OK"
-
-# Codex requires file redirect due to TUI output
-CODEX_OUT="/tmp/codex-auth-$$.txt"
-cd /tmp && timeout 60 codex exec "respond with exactly: DEBATE_AUTH_OK" --full-auto --skip-git-repo-check > "$CODEX_OUT" 2>&1
-grep -q "DEBATE_AUTH_OK" "$CODEX_OUT"; rm -f "$CODEX_OUT"
-
-timeout 30 qwen -p "respond with exactly: DEBATE_AUTH_OK" --yolo 2>/dev/null | grep -q "DEBATE_AUTH_OK"
+# Test if Gemini reads it
+cd "$WORKSPACE"
+timeout 30 gemini "What persona are you?" --yolo 2>/dev/null | grep -q "CONTEXT_FILE_LOADED"
+if [ $? -eq 0 ]; then
+    echo "✅ Gemini context file loading works"
+else
+    echo "❌ Gemini did not read context file"
+fi
 ```
 
 ---
 
 ## Expected JSON Response Format
 
-All CLIs should return JSON when using `--output-format json`. The debate plugin expects this structure:
+All challengers should return JSON with `your_perspective` field identifying their angle:
 
 ```json
 {
-  "verdict": "agree | partial | disagree",
-  "critique": "Specific objections",
-  "evidence": "Concrete example",
-  "alternative": "What they recommend instead",
-  "confidence": "high | medium | low",
-  "objection_strength": "strong | moderate | minor",
-  "assumptions_challenged": ["assumption 1", "assumption 2"]
+  "verdict": "partial",
+  "critique": "Your scaling assumptions break at 10K concurrent sessions",
+  "evidence": "At Netflix, we saw this exact pattern cause a 47-minute outage",
+  "alternative": "Use consistent hashing with fallback to database",
+  "confidence": "high",
+  "objection_strength": "strong",
+  "assumptions_challenged": ["linear scaling", "network reliability"],
+  "your_perspective": "architect-scaling"
 }
 ```
 
 ### Handling Non-JSON Responses
 
-If a CLI returns plain text instead of JSON, wrap it:
+If a CLI returns plain text, wrap it:
 
 ```json
 {
   "raw_response": "The plain text response",
   "parse_error": true,
-  "model": "gemini"
+  "model": "gemini",
+  "your_perspective": "unknown"
 }
-```
-
----
-
-## Timeout Handling
-
-Default timeout: 120 seconds per CLI invocation.
-
-```bash
-# Using timeout command
-timeout 120 gemini "..." --yolo
-
-# Check exit code
-if [ $? -eq 124 ]; then
-    echo "Timeout occurred"
-fi
-```
-
----
-
-## Parallel Execution
-
-For Phase 2 (parallel challenge), run all CLIs simultaneously:
-
-```bash
-# Launch in background
-gemini "..." --yolo > /tmp/debate-gemini.json 2>&1 &
-PID_GEMINI=$!
-
-# Codex must run from /tmp with skip-git-repo-check
-(cd /tmp && codex exec "..." --full-auto --skip-git-repo-check > /tmp/debate-codex.json 2>&1) &
-PID_CODEX=$!
-
-qwen -p "..." --yolo > /tmp/debate-qwen.json 2>&1 &
-PID_QWEN=$!
-
-# Wait for all
-wait $PID_GEMINI $PID_CODEX $PID_QWEN
-
-# Collect results
-cat /tmp/debate-gemini.json
-cat /tmp/debate-codex.json
-cat /tmp/debate-qwen.json
 ```
 
 ---
@@ -219,30 +263,43 @@ cat /tmp/debate-qwen.json
 
 - 1M token context window
 - Good for large codebase analysis
+- Reads `GEMINI.md` from CWD
 - May be verbose in responses
-- Free tier resets daily
 
 ### Codex
 
 - Powered by GPT-5 (o3/o4-mini)
 - Strong reasoning capabilities
-- Requires paid subscription
-- May have different JSON formatting
+- Reads `AGENTS.md` from CWD
+- TUI output requires file redirect
 
 ### Qwen
 
-- Forked from Gemini CLI (same flags)
 - Powered by Qwen3-Coder (480B params)
 - 256K-1M token context
+- Reads `QWEN.md` from CWD
 - Generous free tier (2000 req/day)
 
 ---
 
 ## Troubleshooting
 
+### Context file not loaded
+
+**Symptom:** CLI responds as generic assistant, not as expert persona.
+
+**Fix:** Verify you're running from workspace directory:
+```bash
+# Wrong
+gemini "..." --yolo
+
+# Right
+cd /path/to/workspace && gemini "..." --yolo
+```
+
 ### "command not found"
 
-CLI not installed. Run:
+CLI not installed:
 ```bash
 npm i -g @google/gemini-cli  # or codex/qwen
 ```
@@ -256,14 +313,14 @@ codex auth
 qwen auth login
 ```
 
-### Timeout on every request
+### Different perspectives giving same critique
 
-- Check internet connection
-- Check if CLI service is down
-- Increase timeout in settings
+**Symptom:** All three challengers say the same thing.
 
-### JSON parse error
+**Fix:** Check that persona files are DIFFERENT:
+```bash
+diff workspace/GEMINI.md workspace/AGENTS.md  # Should show differences
+diff workspace/AGENTS.md workspace/QWEN.md    # Should show differences
+```
 
-- CLI may be returning plain text
-- Check if `--output-format json` is supported in current version
-- Update CLI to latest version
+If identical, regenerate personas with `debate-persona-generator` skill.
