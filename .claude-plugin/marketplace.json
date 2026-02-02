@@ -40,6 +40,14 @@
       "version": "1.0.0",
       "keywords": ["debate", "multi-model", "adversarial", "decision-support", "tradeoffs", "gemini", "codex", "qwen"],
       "category": "productivity"
+    },
+    {
+      "name": "statusline",
+      "source": "./plugins/statusline",
+      "description": "Premium powerline-style statusline for Claude Code with git status, context window, and model info",
+      "version": "2.0.0",
+      "keywords": ["statusline", "powerline", "ui", "display", "git-status", "context-window"],
+      "category": "ui"
     }
   ]
 }
