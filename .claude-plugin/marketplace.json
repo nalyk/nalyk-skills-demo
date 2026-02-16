@@ -48,6 +48,14 @@
       "version": "2.0.0",
       "keywords": ["statusline", "powerline", "ui", "display", "git-status", "context-window"],
       "category": "ui"
+    },
+    {
+      "name": "openclaw",
+      "source": "./plugins/openclaw",
+      "description": "ULTRA deep OpenClaw expertise from all 264 documentation pages. Covers architecture, channels, providers, tools, CLI, multi-agent routing, security, automation, platforms, installation, and troubleshooting.",
+      "version": "1.0.0",
+      "keywords": ["openclaw", "ai-gateway", "whatsapp", "telegram", "discord", "multi-channel", "self-hosted", "agents"],
+      "category": "knowledge"
     }
   ]
 }

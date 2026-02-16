@@ -1,0 +1,10 @@
+{
+  "name": "openclaw",
+  "description": "ULTRA deep expertise in OpenClaw — complete knowledge from all 264 documentation pages covering architecture, channels, providers, tools, CLI, automation, platforms, and more",
+  "version": "1.0.0",
+  "author": {
+    "name": "nalyk"
+  },
+  "license": "MIT",
+  "keywords": ["openclaw", "ai-gateway", "whatsapp", "telegram", "discord", "multi-channel", "self-hosted", "agents"]
+}
