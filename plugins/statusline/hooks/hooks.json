@@ -1,0 +1,16 @@
+{
+  "description": "Auto-configure statusline on session start if not already set",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/auto-configure.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
