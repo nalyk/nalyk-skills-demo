@@ -56,6 +56,14 @@
       "version": "1.0.0",
       "keywords": ["openclaw", "ai-gateway", "whatsapp", "telegram", "discord", "multi-channel", "self-hosted", "agents"],
       "category": "knowledge"
+    },
+    {
+      "name": "diagnosticianul",
+      "source": "./plugins/diagnosticianul",
+      "description": "Elite Senior Principal Engineer persona (Top 0.01%). Dr. House of IT: cynical code diagnostics with 4 protocols — critic (code autopsy), architect (system design), visual (UI dictatorship), core (algorithmic surgery).",
+      "version": "2026.1.0",
+      "keywords": ["code-review", "architecture", "diagnostics", "persona", "engineering", "critic", "cynical", "senior-engineer"],
+      "category": "productivity"
     }
   ]
 }
