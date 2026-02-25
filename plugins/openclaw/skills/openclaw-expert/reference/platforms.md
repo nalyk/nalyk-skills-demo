@@ -8,243 +8,64 @@ macOS, Linux, Windows, iOS, Android, Hetzner, GCP, Fly, Docker, VPS.
 
 [Source: https://docs.openclaw.ai/platforms/android]
 
-Android App - OpenClaw
-OpenClaw
-home page
-English
-GitHub
-Releases
-Platforms overview
-Android App
-Install
-Channels
-Agents
-Tools
-Models
-Platforms
-Gateway &amp; Ops
-Reference
-Help
-Platforms overview
-Platforms
-macOS App
-Linux App
-Windows (WSL2)
-Android App
-iOS App
-macOS companion app
-macOS Dev Setup
-Menu Bar
-Voice Wake
-Voice Overlay
-WebChat
-Canvas
-Gateway Lifecycle
-Health Checks
-Menu Bar Icon
-macOS Logging
-macOS Permissions
-Remote Control
-macOS Signing
-macOS Release
-Gateway on macOS
-macOS IPC
-Skills
-Peekaboo Bridge
-Android App (Node)
-Support snapshot
-System control
-Connection Runbook
-Prerequisites
-1) Start the Gateway
-2) Verify discovery (optional)
-Tailnet (Vienna ⇄ London) discovery via unicast DNS-SD
-3) Connect from Android
-4) Approve pairing (CLI)
-5) Verify the node is connected
-6) Chat + history
-7) Canvas + camera
-Gateway Canvas Host (recommended for web content)
-Platforms overview
-Android App
-Android App (Node)
-Support snapshot
-Role: companion node app (Android does not host the Gateway).
-Gateway required: yes (run it on macOS, Linux, or Windows via WSL2).
-Install:
-Getting Started
-Pairing
-Gateway:
-Runbook
-Configuration
-Protocols:
-Gateway protocol
-(nodes + control plane).
-System control
-System control (launchd/systemd) lives on the Gateway host. See
-Gateway
-Connection Runbook
-Android node app ⇄ (mDNS/NSD + WebSocket) ⇄
-Gateway
-Android connects directly to the Gateway WebSocket (default
-ws://&lt;host&gt;:18789
-) and uses Gateway-owned pairing.
-Prerequisites
-You can run the Gateway on the “master” machine.
-Android device/emulator can reach the gateway WebSocket:
-Same LAN with mDNS/NSD,
-Same Tailscale tailnet using Wide-Area Bonjour / unicast DNS-SD (see below),
-Manual gateway host/port (fallback)
-You can run the CLI (
-openclaw
-) on the gateway machine (or via SSH).
-1) Start the Gateway
-Copy
-openclaw
-gateway
---port
-18789
---verbose
-Confirm in logs you see something like:
-listening on ws://0.0.0.0:18789
-For tailnet-only setups (recommended for Vienna ⇄ London), bind the gateway to the tailnet IP:
-Set
-gateway.bind: &quot;tailnet&quot;
-~/.openclaw/openclaw.json
-on the gateway host.
-Restart the Gateway / macOS menubar app.
-2) Verify discovery (optional)
-From the gateway machine:
-Copy
-dns-sd
-_openclaw-gw._tcp
-local.
-More debugging notes:
-Bonjour
-Tailnet (Vienna ⇄ London) discovery via unicast DNS-SD
-Android NSD/mDNS discovery won’t cross networks. If your Android node and the gateway are on different networks but connected via Tailscale, use Wide-Area Bonjour / unicast DNS-SD instead:
-Set up a DNS-SD zone (example
-openclaw.internal.
-) on the gateway host and publish
-_openclaw-gw._tcp
-records.
-Configure Tailscale split DNS for your chosen domain pointing at that DNS server.
-Details and example CoreDNS config:
-Bonjour
-3) Connect from Android
-In the Android app:
-The app keeps its gateway connection alive via a
-foreground service
-(persistent notification).
-Open
-Settings
-Under
-Discovered Gateways
-, select your gateway and hit
-Connect
-If mDNS is blocked, use
-Advanced → Manual Gateway
-(host + port) and
-Connect (Manual)
-After the first successful pairing, Android auto-reconnects on launch:
-Manual endpoint (if enabled), otherwise
-The last discovered gateway (best-effort).
-4) Approve pairing (CLI)
-On the gateway machine:
-Copy
-openclaw
-nodes
-pending
-openclaw
-nodes
-approve
-&lt;
-requestI
-&gt;
-Pairing details:
-Gateway pairing
-5) Verify the node is connected
-Via nodes status:
-Copy
-openclaw
-nodes
-status
-Via Gateway:
-Copy
-openclaw
-gateway
-call
-node.list
---params
-&quot;{}&quot;
-6) Chat + history
-The Android node’s Chat sheet uses the gateway’s
-primary session key
-main
-), so history and replies are shared with WebChat and other clients:
-History:
-chat.history
-Send:
-chat.send
-Push updates (best-effort):
-chat.subscribe
-event:&quot;chat&quot;
-7) Canvas + camera
-Gateway Canvas Host (recommended for web content)
-If you want the node to show real HTML/CSS/JS that the agent can edit on disk, point the node at the Gateway canvas host.
-Note: nodes load canvas from the Gateway HTTP server (same port as
-gateway.port
-, default
-18789
-Create
-~/.openclaw/workspace/canvas/index.html
-on the gateway host.
-Navigate the node to it (LAN):
-Copy
-openclaw
-nodes
-invoke
---node
-&quot;&lt;Android Node&gt;&quot;
---command
-canvas.navigate
---params
-&#x27;{&quot;url&quot;:&quot;http://&lt;gateway-hostname&gt;.local:18789/__openclaw__/canvas/&quot;}&#x27;
-Tailnet (optional): if both devices are on Tailscale, use a MagicDNS name or tailnet IP instead of
-.local
-, e.g.
-http://&lt;gateway-magicdns&gt;:18789/__openclaw__/canvas/
-This server injects a live-reload client into HTML and reloads on file changes.
-The A2UI host lives at
-http://&lt;gateway-host&gt;:18789/__openclaw__/a2ui/
-Canvas commands (foreground only):
-canvas.eval
-canvas.snapshot
-canvas.navigate
-(use
-{&quot;url&quot;:&quot;&quot;}
-{&quot;url&quot;:&quot;/&quot;}
-to return to the default scaffold).
-canvas.snapshot
-returns
-{ format, base64 }
-(default
-format=&quot;jpeg&quot;
-A2UI:
-canvas.a2ui.push
-canvas.a2ui.reset
-canvas.a2ui.pushJSONL
-legacy alias)
-Camera commands (foreground only; permission-gated):
-camera.snap
-(jpg)
-camera.clip
-(mp4)
-See
-Camera node
-for parameters and CLI helpers.
-Windows (WSL2)
-iOS App
+# Android App Documentation Summary
+
+## Overview
+The Android App functions as a "companion node" that requires a Gateway running on macOS, Linux, or Windows (via WSL2). The setup involves installation, pairing, and establishing a WebSocket connection between the Android device and the Gateway.
+
+## Key Architecture
+The connection follows this pattern: "Android node app ⇄ (mDNS/NSD + WebSocket) ⇄ **Gateway**". The Android application connects directly to the Gateway WebSocket at the default address `ws://<host>:18789`.
+
+## Setup Requirements
+Before connecting, ensure:
+- A Gateway instance runs on a "master" machine
+- The Android device can reach the Gateway WebSocket via same LAN with mDNS/NSD, Tailscale tailnet with Wide-Area Bonjour, or manual host/port configuration
+- The CLI tool (`openclaw`) is available on the gateway machine or via SSH
+
+## Configuration Steps
+
+**Starting the Gateway:**
+```bash
+openclaw gateway --port 18789 --verbose
+```
+
+For Tailscale setups, configure the gateway binding in `~/.openclaw/openclaw.json`:
+```
+gateway.bind: "tailnet"
+```
+
+**Android Connection Process:**
+1. Open Settings in the Android app
+2. Select your gateway under "Discovered Gateways"
+3. Hit Connect (or use Manual Gateway if mDNS is blocked)
+4. Approve pairing via CLI on the gateway machine
+
+**Pairing Approval Commands:**
+```bash
+openclaw nodes pending
+openclaw nodes approve <requestId>
+```
+
+## Features
+
+**Chat & History:** The Android node shares the gateway's primary session key (`main`), enabling unified history across WebChat and other clients through `chat.history`, `chat.send`, and `chat.subscribe`.
+
+**Canvas Navigation:**
+```bash
+openclaw nodes invoke --node "<Android Node>" --command canvas.navigate \
+  --params '{"url":"http://<gateway-hostname>.local:18789/__openclaw__/canvas/"}'
+```
+
+**Available Commands:**
+- Canvas: `canvas.eval`, `canvas.snapshot`, `canvas.navigate`, `canvas.a2ui.push`, `canvas.a2ui.reset`
+- Camera: `camera.snap` (jpg), `camera.clip` (mp4)
+
+## Connection Verification
+Status checking can be performed through:
+```bash
+openclaw nodes status
+openclaw gateway call node.list --params "{}"
+```
 
 ---
 ## Platforms > Ios

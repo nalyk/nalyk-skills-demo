@@ -9731,4 +9731,368 @@ openclaw channels status --probe
 Re-login:
 openclaw channels logout --channel zalouser &amp;&amp; openclaw channels login --channel zalouser
 Zalo
-Pairing
+Pairing---
+## Channels > BlueBubbles
+
+[Source: https://docs.openclaw.ai/channels/bluebubbles]
+
+## Overview
+The BlueBubbles macOS REST plugin facilitates iMessage integration through a dedicated server application. It operates on macOS Sequoia (15) or later via HTTP REST calls, with incoming messages delivered through webhooks.
+
+## Core Setup Steps
+
+**Installation requires:**
+1. Installing the BlueBubbles server from bluebubbles.app/install
+2. Enabling the web API and setting a password in BlueBubbles configuration
+3. Running `openclaw onboard` to select BlueBubbles or manual JSON configuration
+4. Pointing BlueBubbles webhooks to your gateway endpoint with password authentication
+5. Starting the gateway to register webhook handlers and begin pairing
+
+## Security Requirements
+
+The system mandates webhook password protection. "Webhook authentication is always required. OpenClaw rejects BlueBubbles webhook requests unless they include a password/guid that matches `channels.bluebubbles.password`"
+
+Key protective measures include:
+- Always setting a webhook password
+- Treating API credentials as sensitive
+- Using HTTPS and firewall rules when exposing servers outside your local network
+- Configuring trusted proxies if using reverse proxies
+
+## Configuration Reference
+
+Essential channel options:
+- `serverUrl`: BlueBubbles REST API endpoint
+- `password`: API authentication credential
+- `webhookPath`: Webhook handler path (defaults to `/bluebubbles-webhook`)
+- `dmPolicy`: Controls direct message access (pairing, allowlist, open, or disabled)
+- `groupPolicy`: Manages group chat permissions
+- `sendReadReceipts`: Boolean toggle for read receipt delivery
+- `textChunkLimit`: Character limit per message chunk (default 4000)
+- `mediaMaxMb`: Inbound attachment size limit (default 8 MB)
+
+## Advanced Features
+
+The plugin supports message reactions, editing, unsending, reply threading, effects, and group management. "Available actions" include tapback reactions, message editing (macOS 13+), unsending capabilities, threaded replies via message GUID, iMessage effects, group renaming, icon updates, participant management, and media attachments.
+
+Voice memo transmission requires MP3 or CAF audio files with the `asVoice: true` parameter set, with BlueBubbles handling MP3 to CAF conversion automatically.
+
+## Message Addressing
+
+For stable routing, use chat GUIDs rather than chat IDs:
+- Format: `chat_guid:iMessage;-;+15555550123` (recommended for groups)
+- Alternative formats: `chat_id:123` or direct handles like phone numbers/emails
+
+## Troubleshooting Guidance
+
+Common resolution steps address webhook logging verification, pairing code expiration (one-hour limit), private API availability for reactions, and macOS version compatibility issues. Users experiencing missing typing indicators should verify webhook path configuration matches `channels.bluebubbles.webhookPath` settings.
+
+---
+## Channels > Nextcloud Talk
+
+[Source: https://docs.openclaw.ai/channels/nextcloud-talk]
+
+## Overview
+The Nextcloud Talk plugin enables OpenClaw to communicate via Nextcloud's messaging platform. It supports direct messages, rooms, reactions, and markdown formatting through a webhook bot mechanism.
+
+## Installation
+
+Install the plugin using npm:
+```bash
+openclaw plugins install @openclaw/nextcloud-talk
+```
+
+Or from a local repository:
+```bash
+openclaw plugins install ./extensions/nextcloud-talk
+```
+
+## Setup Instructions
+
+**Step 1:** Install the Nextcloud Talk plugin.
+
+**Step 2:** Create a bot on your Nextcloud server:
+```bash
+./occ talk:bot:install "OpenClaw" "<shared-secret>" "<webhook-url>" --feature reaction
+```
+
+**Step 3:** Enable the bot in your target room's settings.
+
+**Step 4:** Configure OpenClaw with these settings:
+- `channels.nextcloud-talk.baseUrl` (your Nextcloud URL)
+- `channels.nextcloud-talk.botSecret` (matching the shared secret)
+
+**Step 5:** Restart the gateway to apply changes.
+
+## Minimal Configuration
+
+```json5
+{
+  channels: {
+    "nextcloud-talk": {
+      enabled: true,
+      baseUrl: "https://cloud.example.com",
+      botSecret: "shared-secret",
+      dmPolicy: "pairing",
+    },
+  },
+}
+```
+
+## Key Limitations & Notes
+
+- "Bots cannot initiate DMs. The user must message the bot first."
+- Webhook URL must be accessible by the Gateway
+- Media uploads aren't supported; media transmits as URLs only
+- "The webhook payload does not distinguish DMs vs rooms" without additional API credentials
+
+## Access Control
+
+**Direct Messages:** Default pairing mode requires approval codes for unknown senders. Enable open access with `dmPolicy="open"` and `allowFrom=["*"]`.
+
+**Rooms:** Use an allowlist to restrict bot participation:
+```json5
+{
+  channels: {
+    "nextcloud-talk": {
+      rooms: {
+        "room-token": { requireMention: true },
+      },
+    },
+  },
+}
+```
+
+## Supported Features
+
+| Capability | Support |
+|---|---|
+| Direct Messages | Supported |
+| Group Rooms | Supported |
+| Threading | Not available |
+| Reactions | Supported |
+| Media Files | URL-only format |
+
+## Configuration Reference
+
+**Core Settings:**
+- `enabled`: Activate/deactivate the channel
+- `baseUrl`: Your Nextcloud instance URL
+- `botSecret` or `botSecretFile`: Authentication credentials
+- `apiUser` / `apiPassword`: Required for DM detection
+
+**Webhook Configuration:**
+- `webhookPort`: Listener port (default: 8788)
+- `webhookPath`: Endpoint path (default: /nextcloud-talk-webhook)
+- `webhookPublicUrl`: External URL if behind a proxy
+
+**Policy Settings:**
+- `dmPolicy`: Control DM access (`pairing`, `allowlist`, `open`, `disabled`)
+- `groupPolicy`: Restrict room participation (`allowlist`, `open`, `disabled`)
+- `allowFrom` / `groupAllowFrom`: User ID allowlists
+
+**Performance Tuning:**
+- `historyLimit`: Message history retention (0 = disabled)
+- `textChunkLimit`: Maximum outbound message length in characters
+- `chunkMode`: Split by length or paragraph boundaries
+- `mediaMaxMb`: Inbound media size limit
+- `blockStreaming`: Disable streaming for this channel
+
+---
+## Channels > Nostr
+
+[Source: https://docs.openclaw.ai/channels/nostr]
+
+## Overview
+
+The Nostr integration functions as an optional plugin within OpenClaw, permitting the system to receive and respond to encrypted direct messages through the NIP-04 protocol. The channel is disabled by default and requires manual activation.
+
+## Installation Methods
+
+**Onboarding approach:** The setup wizard (`openclaw onboard`) presents Nostr as an available channel option, with automatic installation triggered upon selection.
+
+**Command-line installation:**
+```bash
+openclaw plugins install @openclaw/nostr
+```
+
+For development workflows using a local repository:
+```bash
+openclaw plugins install --link <path-to-openclaw>/extensions/nostr
+```
+
+After installation, restart the Gateway service.
+
+## Initial Configuration
+
+The setup process involves four primary steps:
+
+1. **Generate keypair** using: `nak key generate`
+2. **Store configuration** in the config file with the private key
+3. **Export environment variable** containing the key value
+4. **Restart the Gateway**
+
+## Core Settings
+
+The configuration table specifies several adjustable parameters:
+
+- **privateKey**: Required field accepting `nsec` or hexadecimal formats
+- **relays**: WebSocket URLs defaulting to "relay.damus.io" and "nos.lol"
+- **dmPolicy**: Message access rules (pairing, allowlist, open, or disabled)
+- **allowFrom**: Array of approved sender public keys
+- **enabled**: Boolean toggle for the channel
+- **profile**: NIP-01 metadata object containing name, bio, and media URLs
+
+## Access Control Mechanisms
+
+The system implements multiple DM policy options:
+
+- **Pairing mode** (default): Unknown contacts receive a verification code
+- **Allowlist mode**: Only approved pubkeys can initiate conversations
+- **Open mode**: Unrestricted inbound messages (requires `allowFrom: ["*"]`)
+- **Disabled mode**: Ignores all incoming DMs
+
+## Relay Configuration
+
+The documentation recommends using 2-3 relays for network resilience while avoiding excessive relay connections that degrade performance. Both paid relays and local testing instances (via Docker containers) are supported.
+
+## Protocol Support Status
+
+Currently supported: NIP-01 (event format) and NIP-04 (encrypted messaging)
+
+Planned implementations: NIP-17 (gift-wrapped messages) and NIP-44 (versioned encryption)
+
+## Diagnostic Guidance
+
+Common issues include message delivery failures caused by invalid keys, unreachable relays, or disabled channels. Response failures often relate to relay write permissions or rate-limiting constraints.
+
+## Security Recommendations
+
+Private keys should never be hardcoded in version control. Production deployments should employ allowlist policies and environment variables for credential management.
+
+---
+## Channels > Synology Chat
+
+[Source: https://docs.openclaw.ai/channels/synology-chat]
+
+## Overview
+The Synology Chat plugin enables OpenClaw to function as a direct-message channel by leveraging Synology Chat webhooks for bidirectional communication.
+
+## Installation
+The plugin requires separate installation: `"openclaw plugins install ./extensions/synology-chat"`. It doesn't come bundled with the core installation.
+
+## Configuration Steps
+Setup involves creating both incoming and outgoing webhooks in Synology Chat, then directing the outgoing webhook toward your OpenClaw gateway endpoint (typically `https://gateway-host/webhook/synology`).
+
+## Key Settings
+The minimal configuration requires four essentials: an outgoing token for verification, the incoming webhook URL from your NAS, the webhook path routing, and access control policies for direct messages.
+
+## Access Control
+Three DM policy options exist: `"allowlist"` (recommended, requires explicit user IDs), `"open"` (unrestricted), and `"disabled"` (blocks all direct messages). Empty allowlists in allowlist mode prevent startup as a safety measure.
+
+## Environment Variables
+Rather than hardcoding sensitive values, administrators can use `SYNOLOGY_CHAT_TOKEN`, `SYNOLOGY_CHAT_INCOMING_URL`, and related variables.
+
+## Multi-Account Support
+Organizations can manage multiple Synology Chat instances simultaneously by configuring separate account entries under `channels.synology-chat.accounts`, each with independent webhooks and policies.
+
+## Message Delivery
+Outbound messages use numeric Synology user IDs as targets, and file sharing works through URL-based delivery mechanisms.
+
+---
+## Channels > Tlon
+
+[Source: https://docs.openclaw.ai/channels/tlon]
+
+## Overview
+The Tlon plugin enables OpenClaw to connect with a decentralized messenger built on Urbit, supporting "DMs, group mentions, thread replies, and text-only media fallback (URL appended to caption)." Reactions, polls, and native media uploads remain unsupported.
+
+## Installation
+Install via npm registry or from a local git repository checkout using the `openclaw plugins install` command.
+
+## Core Configuration
+A minimal setup requires four parameters: the Urbit ship identifier, host URL, authentication code, and an enabled flag. The system supports both public and private network deployments, though private/LAN URLs require explicit opt-in via the `allowPrivateNetwork` setting.
+
+## Channel Management
+Channels are auto-discovered by default, though operators can manually specify group channels or disable automatic discovery entirely. Group messages require an @ mention to trigger bot responses.
+
+## Access Control
+Two permission models are available:
+
+- **DM Protection**: An optional allowlist restricts direct messaging to specified ships (unrestricted when empty)
+- **Group Authorization**: Channel-specific rules support either "restricted" mode (with explicit ship lists) or "open" mode
+
+## Integration Points
+For CLI and cron operations, delivery targets use formats like `~sampel-palnet` for DMs or `chat/~host-ship/channel` for group communication.
+
+---
+## Channels > Twitch
+
+[Source: https://docs.openclaw.ai/channels/twitch]
+
+## Overview
+OpenClaw's Twitch plugin enables chat integration via IRC connection, allowing a bot account to send and receive messages in Twitch channels.
+
+## Installation
+The plugin requires separate installation:
+```bash
+openclaw plugins install @openclaw/twitch
+```
+
+## Quick Setup Steps
+
+1. **Create a bot account** on Twitch or use an existing one
+2. **Generate credentials** via [Twitch Token Generator](https://twitchtokengenerator.com/):
+   - Select Bot Token
+   - Ensure `chat:read` and `chat:write` scopes are selected
+   - Copy Client ID and Access Token
+3. **Find your Twitch User ID** using [StreamWeasels converter](https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/)
+4. **Configure the token** via environment variable or config file
+5. **Start the gateway**
+
+## Minimal Configuration
+```json5
+channels: {
+  twitch: {
+    enabled: true,
+    username: "openclaw",
+    accessToken: "oauth:abc123...",
+    clientId: "xyz789...",
+    channel: "vevisk",
+    allowFrom: ["123456789"],
+  },
+}
+```
+
+## Security Considerations
+
+**Access Control:** "Add access control (`allowFrom` or `allowedRoles`) to prevent unauthorized users from triggering the bot."
+
+Prefer user ID allowlists over usernames since "Usernames can change, allowing impersonation. User IDs are permanent."
+
+Available roles: moderator, owner, VIP, subscriber, all
+
+## Token Management
+
+**Automatic Refresh:** For persistent tokens, create a Twitch application and configure:
+```json5
+clientSecret: "your_client_secret",
+refreshToken: "your_refresh_token",
+```
+
+**Manual Refresh:** Tokens from the Token Generator expire after several hours and require manual regeneration.
+
+## Multi-Account Support
+
+Deploy one bot across multiple channels with per-account configuration under `channels.twitch.accounts`.
+
+## Message Limits
+
+Maximum 500 characters per message; content auto-chunks at word boundaries with markdown stripped.
+
+## Troubleshooting Commands
+```bash
+openclaw doctor
+openclaw channels status --probe
+```
+
+Common issues: verify token format, confirm bot channel membership, check access control settings.

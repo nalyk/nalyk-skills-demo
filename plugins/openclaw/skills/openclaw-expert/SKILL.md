@@ -1,18 +1,18 @@
 ---
 name: openclaw-expert
-description: ULTRA deep expertise in OpenClaw — complete knowledge from ALL 264 documentation pages. Covers architecture, configuration, every channel, every provider, every tool, every CLI command, multi-agent routing, sessions, memory, security, sandboxing, plugins, skills, automation, platforms, installation, troubleshooting, and templates. Auto-activates on any mention of OpenClaw, openclaw.json, gateway setup, WhatsApp/Telegram/Discord bot integration, pi-mono, ClawHub, or multi-channel AI agent configuration.
+description: ULTRA deep expertise in OpenClaw — complete knowledge from ALL 279 documentation pages. Covers architecture, configuration, every channel, every provider, every tool, every CLI command, multi-agent routing, sessions, memory, security, sandboxing, plugins, skills, automation, platforms, installation, troubleshooting, and templates. Auto-activates on any mention of OpenClaw, openclaw.json, gateway setup, WhatsApp/Telegram/Discord bot integration, pi-mono, ClawHub, or multi-channel AI agent configuration.
 ---
 
 # OpenClaw ULTRA Expert Skill
 
-You are the world's foremost OpenClaw expert — a senior developer and infrastructure architect with complete knowledge of the entire OpenClaw system. This skill contains the FULL content from all 264 documentation pages at docs.openclaw.ai, organized into 14 topic-specific reference files.
+You are the world's foremost OpenClaw expert — a senior developer and infrastructure architect with complete knowledge of the entire OpenClaw system. This skill contains the FULL content from all 279 documentation pages at docs.openclaw.ai, organized into 14 topic-specific reference files. Updated Feb 2026 with new channels (BlueBubbles, Nextcloud Talk, Nostr, Synology Chat, Tlon, Twitch), new CLI commands (acp, clawbot, completion, config, daemon, devices, node, qr, webhooks), Mistral provider, prompt caching reference, and community plugins.
 
 ## What is OpenClaw
 
-OpenClaw is a self-hosted, open-source (MIT) multi-channel gateway for AI agents. A single Gateway process connects messaging surfaces (WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Google Chat, MS Teams, Matrix, Mattermost, WebChat, Line, Zalo, IRC, Feishu, Nostr, and more) to AI model providers (Anthropic, OpenAI, OpenRouter, Bedrock, local models via LM Studio/Ollama, and others).
+OpenClaw is a self-hosted, open-source (MIT) multi-channel gateway for AI agents. A single Gateway process connects messaging surfaces (WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Google Chat, MS Teams, Matrix, Mattermost, WebChat, Line, Zalo, IRC, Feishu, Nostr, BlueBubbles, Nextcloud Talk, Synology Chat, Tlon, Twitch, and more) to AI model providers (Anthropic, OpenAI, OpenRouter, Bedrock, Mistral, local models via LM Studio/Ollama, and others).
 
 - **Repo**: https://github.com/openclaw/openclaw
-- **Docs**: https://docs.openclaw.ai (264 pages)
+- **Docs**: https://docs.openclaw.ai (279 pages)
 - **ClawHub** (skills registry): https://clawhub.com
 - **Stack**: TypeScript, Node 22+, pnpm, pi-mono agent runtime, Baileys (WhatsApp), grammY (Telegram)
 - **Config**: JSON5 at `~/.openclaw/openclaw.json` (strict validation, hot-reload)
@@ -25,22 +25,22 @@ OpenClaw is a self-hosted, open-source (MIT) multi-channel gateway for AI agents
 
 | # | Topic | File | Size | Covers |
 |---|---|---|---|---|
-| 1 | **Channels** | `reference/channels.md` | 122K | WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Google Chat, MS Teams, Matrix, Mattermost, Line, Zalo, IRC, Feishu, pairing, groups, broadcast, routing, location, troubleshooting |
+| 1 | **Channels** | `reference/channels.md` | 224K | WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Google Chat, MS Teams, Matrix, Mattermost, Line, Zalo, IRC, Feishu, BlueBubbles, Nextcloud Talk, Nostr, Synology Chat, Tlon, Twitch, pairing, groups, broadcast, routing, location, troubleshooting |
 | 2 | **Concepts** | `reference/concepts.md` | 135K | Architecture, agent runtime, agent loop, system prompt, context, workspace, OAuth, sessions, memory, compaction, multi-agent, presence, messages, streaming, retry, queue, models, features, TypeBox, markdown, typing, usage tracking, timezones |
 | 3 | **Gateway & Ops** | `reference/gateway-ops.md` | 168K | Configuration, config reference, config examples, authentication, trusted proxy, health, heartbeat, doctor, logging, gateway lock, background process, multiple gateways, security, sandboxing, sandbox vs tool policy, protocols, bridge protocol, CLI backends, networking, discovery, Bonjour, pairing, remote access, Tailscale, tools invoke API, OpenAI HTTP API, troubleshooting, web UI, Control UI, dashboard, WebChat, TUI, formal verification |
 | 4 | **Tools** | `reference/tools.md` | 99K | Lobster tool, LLM task, exec, web search, apply_patch, elevated mode, thinking levels, reactions, browser, browser login, Chrome extension, browser troubleshooting, agent send, sub-agents, multi-agent sandbox tools, skills, skills config, ClawHub, plugins, slash commands |
-| 5 | **CLI** | `reference/cli.md` | 91K | ALL 35 CLI commands: agent, agents, approvals, browser, channels, configure, cron, dashboard, directory, dns, docs, doctor, gateway, health, hooks, logs, memory, message, models, nodes, onboard, pairing, plugins, reset, sandbox, security, sessions, setup, skills, status, system, tui, uninstall, update, voicecall |
+| 5 | **CLI** | `reference/cli.md` | 108K | ALL 44 CLI commands: acp, agent, agents, approvals, browser, channels, clawbot, completion, config, configure, cron, daemon, dashboard, devices, directory, dns, docs, doctor, gateway, health, hooks, logs, memory, message, models, node, nodes, onboard, pairing, plugins, qr, reset, sandbox, security, sessions, setup, skills, status, system, tui, uninstall, update, voicecall, webhooks |
 | 6 | **Install** | `reference/install.md` | 91K | npm install, curl installer, Docker, Nix, Ansible, Bun, development channels, installer flags, updating, uninstalling |
 | 7 | **Platforms** | `reference/platforms.md` | 81K | macOS (bundled gateway, canvas, child process, dev setup, health, icon, logging, menu bar, peekaboo, permissions, release, remote, signing, skills, voice overlay, voicewake, webchat, XPC), macOS VM, Linux, Windows/WSL2, iOS, Android, Hetzner, GCP, Fly, exe dev |
-| 8 | **Templates** | `reference/templates-reference.md` | 60K | Default AGENTS.md, AGENTS template, BOOT template, BOOTSTRAP template, HEARTBEAT template, IDENTITY template, SOUL template, TOOLS template, USER template, RPC adapters, device models, session management compaction, releasing, tests |
+| 8 | **Templates** | `reference/templates-reference.md` | 76K | Default AGENTS.md, AGENTS template, BOOT template, BOOTSTRAP template, HEARTBEAT template, IDENTITY template, SOUL template, TOOLS template, USER template, RPC adapters, device models, session management compaction, releasing, tests, prompt caching |
 | 9 | **Automation** | `reference/automation.md` | 41K | Cron jobs, cron vs heartbeat, hooks, webhooks, Gmail PubSub, polls, auth monitoring, automation troubleshooting |
-| 10 | **Providers** | `reference/providers.md` | 38K | Anthropic, OpenAI, OpenRouter, Bedrock, GLM, LiteLLM, MiniMax, Moonshot, OpenCode, Qianfan, Synthetic, Vercel AI Gateway, ZAI, models overview |
+| 10 | **Providers** | `reference/providers.md` | 40K | Anthropic, OpenAI, OpenRouter, Bedrock, GLM, LiteLLM, MiniMax, Mistral, Moonshot, OpenCode, Qianfan, Synthetic, Vercel AI Gateway, ZAI, models overview |
 | 11 | **Getting Started** | `reference/getting-started.md` | 40K | Getting started, onboarding overview, CLI wizard, macOS onboarding, personal assistant setup, showcase, hubs, lore, pairing, setup |
 | 12 | **Nodes & Media** | `reference/nodes-media.md` | 31K | Node management, audio/voice notes, camera capture, images/media, talk mode, voice wake, location command, node troubleshooting |
 | 13 | **Troubleshooting** | `reference/troubleshooting.md` | 27K | FAQ, common fixes, help entry point, debug workflows, channel troubleshooting, gateway troubleshooting |
-| 14 | **Plugins** | `reference/plugins-extensions.md` | 26K | Voice call plugin, Zalo personal plugin, experiments (onboarding config protocol, cron hardening, group policy hardening, memory research, model config exploration) |
+| 14 | **Plugins** | `reference/plugins-extensions.md` | 28K | Voice call plugin, Zalo personal plugin, community plugins, experiments (onboarding config protocol, memory research, model config exploration) |
 
-**Total: ~1MB of reference content from all 264 doc pages.**
+**Total: ~1.4MB of reference content from all 279 doc pages.**
 
 ## How to Use This Skill
 
@@ -129,8 +129,8 @@ openclaw dashboard                  # Open web UI
 
 # Config
 openclaw configure                  # Interactive wizard
-openclaw config get <path>
-openclaw config set <path> <value>
+openclaw config get <path>          # Read config value
+openclaw config set <path> <value>  # Write config value
 openclaw doctor [--fix]             # Diagnose + repair
 
 # Channels
@@ -139,6 +139,16 @@ openclaw channels list / login / status
 # Agents
 openclaw agents list --bindings
 openclaw agents add <name>
+
+# Devices & Nodes
+openclaw devices list / approve / reject
+openclaw node --gateway <url>       # Run headless node
+openclaw qr                         # iOS pairing QR code
+
+# Shortcuts
+openclaw acp                        # Add-commit-push
+openclaw completion --install       # Shell completions
+openclaw daemon status              # Alias for gateway
 
 # Debug
 openclaw logs --follow

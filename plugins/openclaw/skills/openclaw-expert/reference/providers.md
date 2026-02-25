@@ -1267,238 +1267,57 @@ Models CLI
 
 [Source: https://docs.openclaw.ai/providers/moonshot]
 
-Moonshot AI - OpenClaw
-OpenClaw
-home page
-English
-GitHub
-Releases
-Providers
-Moonshot AI
-Install
-Channels
-Agents
-Tools
-Models
-Platforms
-Gateway &amp; Ops
-Reference
-Help
-Overview
-Model Providers
-Model Provider Quickstart
-Model concepts
-Models CLI
-Configuration
-Model Providers
-Model Failover
-Providers
-Anthropic
-OpenAI
-OpenRouter
-Litellm
-Amazon Bedrock
-Vercel AI Gateway
-Moonshot AI
-MiniMax
-OpenCode Zen
-GLM Models
-Z.AI
-Synthetic
-Qianfan
-Moonshot AI (Kimi)
-Config snippet (Moonshot API)
-Kimi Coding
-Notes
-Providers
-Moonshot AI
-Moonshot AI (Kimi)
-Moonshot provides the Kimi API with OpenAI-compatible endpoints. Configure the
-provider and set the default model to
-moonshot/kimi-k2.5
-, or use
-Kimi Coding with
-kimi-coding/k2p5
-Current Kimi K2 model IDs:
-kimi-k2.5
-kimi-k2-0905-preview
-kimi-k2-turbo-preview
-kimi-k2-thinking
-kimi-k2-thinking-turbo
-Copy
-openclaw
-onboard
---auth-choice
-moonshot-api-key
-Kimi Coding:
-Copy
-openclaw
-onboard
---auth-choice
-kimi-code-api-key
-Note: Moonshot and Kimi Coding are separate providers. Keys are not interchangeable, endpoints differ, and model refs differ (Moonshot uses
-moonshot/...
-, Kimi Coding uses
-kimi-coding/...
-Config snippet (Moonshot API)
-Copy
-env
-MOONSHOT_API_KEY
-&quot;sk-...&quot;
-agents
-defaults
-model
-primary
-&quot;moonshot/kimi-k2.5&quot;
-models
-// moonshot-kimi-k2-aliases:start
-&quot;moonshot/kimi-k2.5&quot;
-alias
-&quot;Kimi K2.5&quot;
-&quot;moonshot/kimi-k2-0905-preview&quot;
-alias
-&quot;Kimi K2&quot;
-&quot;moonshot/kimi-k2-turbo-preview&quot;
-alias
-&quot;Kimi K2 Turbo&quot;
-&quot;moonshot/kimi-k2-thinking&quot;
-alias
-&quot;Kimi K2 Thinking&quot;
-&quot;moonshot/kimi-k2-thinking-turbo&quot;
-alias
-&quot;Kimi K2 Thinking Turbo&quot;
-// moonshot-kimi-k2-aliases:end
-models
-mode
-&quot;merge&quot;
-providers
-moonshot
-baseUrl
-&quot;https://api.moonshot.ai/v1&quot;
-apiKey
-&quot;${MOONSHOT_API_KEY}&quot;
-api
-&quot;openai-completions&quot;
-models
-// moonshot-kimi-k2-models:start
-&quot;kimi-k2.5&quot;
-name
-&quot;Kimi K2.5&quot;
-reasoning
-false
-input
-&quot;text&quot;
-cost
-input
-output
-cacheRead
-cacheWrite
-0 }
-contextWindow
-256000
-maxTokens
-8192
-&quot;kimi-k2-0905-preview&quot;
-name
-&quot;Kimi K2 0905 Preview&quot;
-reasoning
-false
-input
-&quot;text&quot;
-cost
-input
-output
-cacheRead
-cacheWrite
-0 }
-contextWindow
-256000
-maxTokens
-8192
-&quot;kimi-k2-turbo-preview&quot;
-name
-&quot;Kimi K2 Turbo&quot;
-reasoning
-false
-input
-&quot;text&quot;
-cost
-input
-output
-cacheRead
-cacheWrite
-0 }
-contextWindow
-256000
-maxTokens
-8192
-&quot;kimi-k2-thinking&quot;
-name
-&quot;Kimi K2 Thinking&quot;
-reasoning
-true
-input
-&quot;text&quot;
-cost
-input
-output
-cacheRead
-cacheWrite
-0 }
-contextWindow
-256000
-maxTokens
-8192
-&quot;kimi-k2-thinking-turbo&quot;
-name
-&quot;Kimi K2 Thinking Turbo&quot;
-reasoning
-true
-input
-&quot;text&quot;
-cost
-input
-output
-cacheRead
-cacheWrite
-0 }
-contextWindow
-256000
-maxTokens
-8192
-// moonshot-kimi-k2-models:end
-Kimi Coding
-Copy
-env
-KIMI_API_KEY
-&quot;sk-...&quot;
-agents
-defaults
-model
-primary
-&quot;kimi-coding/k2p5&quot;
-models
-&quot;kimi-coding/k2p5&quot;
-alias
-&quot;Kimi K2.5&quot;
-Notes
-Moonshot model refs use
-moonshot/&lt;modelId&gt;
-. Kimi Coding model refs use
-kimi-coding/&lt;modelId&gt;
-Override pricing and context metadata in
-models.providers
-if needed.
-If Moonshot publishes different context limits for a model, adjust
-contextWindow
-accordingly.
-Use
-https://api.moonshot.ai/v1
-for the international endpoint, and
-https://api.moonshot.cn/v1
-for the China endpoint.
-Vercel AI Gateway
-MiniMax
+# Moonshot AI Documentation Extract
+
+## Overview
+Moonshot provides the Kimi API with "OpenAI-compatible endpoints." Users can configure the provider and select from multiple model options including standard, preview, turbo, and thinking variants.
+
+## Setup Instructions
+
+**Moonshot API onboarding:**
+```bash
+openclaw onboard --auth-choice moonshot-api-key
+```
+
+**Kimi Coding onboarding:**
+```bash
+openclaw onboard --auth-choice kimi-code-api-key
+```
+
+## Available Models
+
+The documentation lists five Kimi K2 model identifiers:
+- `kimi-k2.5`
+- `kimi-k2-0905-preview`
+- `kimi-k2-turbo-preview`
+- `kimi-k2-thinking`
+- `kimi-k2-thinking-turbo`
+
+## Key Configuration Details
+
+**Important distinction:** "Moonshot and Kimi Coding are separate providers. Keys are not interchangeable, endpoints differ, and model refs differ."
+
+**Model reference formatting:**
+- Moonshot uses prefix format: `moonshot/<modelId>`
+- Kimi Coding uses prefix format: `kimi-coding/<modelId>`
+
+**Default models:**
+- Moonshot: `moonshot/kimi-k2.5`
+- Kimi Coding: `kimi-coding/k2p5`
+
+## Technical Specifications
+
+All models feature:
+- 256,000 token context window
+- 8,192 maximum output tokens
+- Zero cost (pricing shown as 0)
+- Text input support
+
+Two models include reasoning capabilities: `kimi-k2-thinking` and `kimi-k2-thinking-turbo`
+
+## Endpoint Options
+
+Users can select between international and China endpoints: `https://api.moonshot.ai/v1` or `https://api.moonshot.cn/v1`
 
 ---
 ## Providers > Openai
@@ -2296,4 +2115,58 @@ See
 for the model family overview.
 Z.AI uses Bearer auth with your API key.
 GLM Models
-Synthetic
+Synthetic---
+## Providers > Mistral
+
+[Source: https://docs.openclaw.ai/providers/mistral]
+
+# Mistral Integration Documentation
+
+OpenClaw provides comprehensive Mistral support across multiple use cases.
+
+## Setup Instructions
+
+The CLI onboarding process accepts Mistral credentials interactively or via command-line argument:
+
+```bash
+openclaw onboard --auth-choice mistral-api-key
+# or non-interactive
+openclaw onboard --mistral-api-key "$MISTRAL_API_KEY"
+```
+
+## LLM Provider Configuration
+
+To use Mistral as your primary language model:
+
+```json5
+{
+  env: { MISTRAL_API_KEY: "sk-..." },
+  agents: { defaults: { model: { primary: "mistral/mistral-large-latest" } } },
+}
+```
+
+## Audio Transcription Setup
+
+Voxtral enables audio processing capabilities:
+
+```json5
+{
+  tools: {
+    media: {
+      audio: {
+        enabled: true,
+        models: [{ provider: "mistral", model: "voxtral-mini-latest" }],
+      },
+    },
+  },
+}
+```
+
+## Key Configuration Details
+
+- **Authentication**: Uses the `MISTRAL_API_KEY` environment variable
+- **Base URL**: Defaults to `https://api.mistral.ai/v1`
+- **Default LLM Model**: `mistral-large-latest`
+- **Audio Model**: `voxtral-mini-latest` for transcription
+- **Embedding Support**: Memory search via `mistral-embed` at `/v1/embeddings`
+- **Transcription Endpoint**: `/v1/audio/transcriptions`

@@ -6589,4 +6589,454 @@ voicecall
 unexpose
 Security note: only expose the webhook endpoint to networks you trust. Prefer Tailscale Serve over Funnel when possible.
 update
-RPC Adapters
+RPC Adapters---
+## Cli > ACP
+
+[Source: https://docs.openclaw.ai/cli/acp]
+
+# ACP Command Documentation
+
+## Overview
+
+The `acp` command operates an Agent Client Protocol bridge that connects IDEs and clients to OpenClaw Gateway instances via WebSocket, maintaining mapped sessions between ACP and Gateway protocols.
+
+## Core Usage Patterns
+
+**Local Gateway:**
+```bash
+openclaw acp
+```
+
+**Remote Gateway with token:**
+```bash
+openclaw acp --url wss://gateway-host:18789 --token <token>
+openclaw acp --url wss://gateway-host:18789 --token-file ~/.openclaw/gateway.token
+```
+
+**Session targeting:**
+```bash
+openclaw acp --session agent:main:main
+openclaw acp --session-label "support inbox"
+openclaw acp --session agent:main:main --reset-session
+```
+
+## Debug Mode
+
+The built-in client allows interactive testing:
+
+```bash
+openclaw acp client
+openclaw acp client --server-args --url wss://gateway-host:18789 --token-file ~/.openclaw/gateway.token
+openclaw acp client --server "node" --server-args openclaw.mjs acp --url ws://127.0.0.1:19001
+```
+
+## Primary Flags
+
+| Flag | Purpose |
+|------|---------|
+| `--url <url>` | Gateway WebSocket endpoint |
+| `--token <token>` | Authentication token |
+| `--token-file <path>` | Token sourced from file |
+| `--password <password>` | Authentication password |
+| `--password-file <path>` | Password sourced from file |
+| `--session <key>` | Specific Gateway session key |
+| `--session-label <label>` | Resolve session by existing label |
+| `--require-existing` | Error if session doesn't exist |
+| `--reset-session` | Create fresh session ID |
+| `--no-prefix-cwd` | Omit directory prefix from prompts |
+| `--verbose, -v` | Enhanced stderr logging |
+
+## Zed Editor Integration
+
+Configure in `~/.config/zed/settings.json`:
+
+```json
+{
+  "agent_servers": {
+    "OpenClaw ACP": {
+      "type": "custom",
+      "command": "openclaw",
+      "args": ["acp"]
+    }
+  }
+}
+```
+
+## Client Debug Options
+
+| Flag | Purpose |
+|------|---------|
+| `--cwd <dir>` | Working directory context |
+| `--server <command>` | ACP server executable |
+| `--server-args <args...>` | Additional server arguments |
+| `--server-verbose` | Server-side verbose logging |
+| `--verbose, -v` | Client logging |
+
+## Security Recommendations
+
+Prefer environment variables or file-based credentials over command-line arguments to avoid process-listing exposure:
+- `OPENCLAW_GATEWAY_TOKEN`
+- `OPENCLAW_GATEWAY_PASSWORD`
+
+---
+## Cli > Clawbot
+
+[Source: https://docs.openclaw.ai/cli/clawbot]
+
+# OpenClaw clawbot Documentation
+
+## Overview
+
+The `openclaw clawbot` command represents a legacy namespace maintained for backward compatibility purposes.
+
+## Supported Commands
+
+Currently, only one alias is available:
+- `openclaw clawbot qr` — provides identical functionality to the modern `openclaw qr` command
+
+## Migration Guidance
+
+The documentation recommends transitioning to newer top-level commands rather than using the legacy namespace:
+
+**Legacy command:**
+```
+openclaw clawbot qr
+```
+
+**Modern equivalent:**
+```
+openclaw qr
+```
+
+## Key Takeaway
+
+Users should migrate away from the `clawbot` namespace and adopt the streamlined command structure available at the root level of the CLI tool.
+
+---
+## Cli > Completion
+
+[Source: https://docs.openclaw.ai/cli/completion]
+
+# OpenClaw Completion Command Documentation
+
+## Command Overview
+The `openclaw completion` command generates shell completion scripts for various shell environments and can optionally install them into your shell profile.
+
+## Usage Examples
+The command supports several invocation patterns:
+- Basic usage: `openclaw completion`
+- Specify shell: `openclaw completion --shell zsh`
+- Install to profile: `openclaw completion --install`
+- Combined options: `openclaw completion --shell fish --install`
+- State file operations: `openclaw completion --write-state`
+
+## Available Flags
+
+**Shell Selection:**
+- `-s, --shell <shell>`: "shell target (`zsh`, `bash`, `powershell`, `fish`; default: `zsh`)"
+
+**Installation Options:**
+- `-i, --install`: "install completion by adding a source line to your shell profile"
+- `--write-state`: "write completion script(s) to `$OPENCLAW_STATE_DIR/completions` without printing to stdout"
+- `-y, --yes`: "skip install confirmation prompts"
+
+## Key Behaviors
+
+The `--install` flag modifies your shell profile by adding a small configuration block that references cached completion scripts rather than embedding them directly.
+
+By default, without installation flags, the script outputs to standard output for piping or manual review.
+
+The completion generation process eagerly loads the entire command tree to ensure nested subcommands are properly included in the generated completion scripts.
+
+---
+## Cli > Config
+
+[Source: https://docs.openclaw.ai/cli/config]
+
+# OpenClaw Config Documentation
+
+## Overview
+The `openclaw config` command manages configuration settings through a path-based interface. Running it without arguments opens the configure wizard (equivalent to `openclaw configure`).
+
+## Subcommands
+
+**Get**: Retrieve configuration values
+- `openclaw config get <path>`
+
+**Set**: Assign configuration values
+- `openclaw config set <path> <value>`
+
+**Unset**: Remove configuration values
+- `openclaw config unset <path>`
+
+## Path Syntax
+
+Configuration uses "dot or bracket notation" to navigate the settings structure:
+- Dot notation: `agents.defaults.workspace`
+- Bracket notation for array indices: `agents.list[0].id`
+
+You can target specific agents in the list using index numbers: `agents.list[1].tools.exec.node`
+
+## Value Parsing
+
+Values are "parsed as JSON5 when possible; otherwise they are treated as strings." Use the `--strict-json` flag to enforce JSON5 parsing requirements. The legacy `--json` alias remains supported.
+
+## Common Examples
+
+```bash
+openclaw config get browser.executablePath
+openclaw config set browser.executablePath "/usr/bin/google-chrome"
+openclaw config set agents.defaults.heartbeat.every "2h"
+openclaw config set gateway.port 19001 --strict-json
+openclaw config set channels.whatsapp.groups '["*"]' --strict-json
+openclaw config unset tools.web.search.apiKey
+```
+
+## Important Note
+
+After making edits, restart the gateway to apply changes.
+
+---
+## Cli > Daemon
+
+[Source: https://docs.openclaw.ai/cli/daemon]
+
+# Documentation: `openclaw daemon`
+
+## Overview
+The `openclaw daemon` command is a legacy alias that maps to `openclaw gateway` service management. It provides platform-specific service control through `launchd` (macOS), `systemd` (Linux), or `schtasks` (Windows).
+
+## Available Subcommands
+
+The command supports six service management operations:
+
+- **status**: Display installation state and health probe results for Gateway
+- **install**: Deploy service using platform-appropriate mechanisms
+- **uninstall**: Remove the installed service
+- **start**: Activate the service
+- **stop**: Deactivate the service
+- **restart**: Cycle the service
+
+## Command-Line Options
+
+**For status checks:**
+`--url`, `--token`, `--password`, `--timeout`, `--no-probe`, `--deep`, `--json`
+
+**For installation:**
+`--port`, `--runtime <node|bun>`, `--token`, `--force`, `--json`
+
+**For lifecycle operations** (uninstall, start, stop, restart):
+`--json`
+
+## Usage Examples
+
+```bash
+openclaw daemon status
+openclaw daemon install
+openclaw daemon start
+openclaw daemon stop
+openclaw daemon restart
+openclaw daemon uninstall
+```
+
+## Recommendation
+
+The documentation advises consulting the newer `openclaw gateway` reference for current documentation and practical examples.
+
+---
+## Cli > Devices
+
+[Source: https://docs.openclaw.ai/cli/devices]
+
+# OpenClaw Devices Documentation
+
+## Overview
+
+The `openclaw devices` command manages device pairing requests and device-scoped tokens through a CLI interface.
+
+## Available Subcommands
+
+**List Operations:**
+- `openclaw devices list` - Display pending pairing requests and paired devices
+- `openclaw devices list --json` - Output results in JSON format
+
+**Device Removal:**
+- `openclaw devices remove <deviceId>` - Delete a single paired device entry
+- `openclaw devices remove <deviceId> --json` - Removal with JSON output
+
+**Bulk Management:**
+- `openclaw devices clear --yes` - Bulk removal of paired devices (requires confirmation flag)
+- `openclaw devices clear --yes --pending` - Clear pending requests specifically
+- `openclaw devices clear --yes --pending --json` - Bulk operations with JSON formatting
+
+**Pairing Approval:**
+- `openclaw devices approve` - Automatically approve the most recent pending request
+- `openclaw devices approve <requestId>` - Approve a specific pairing request
+- `openclaw devices approve --latest` - Approve the latest pending request
+
+**Pairing Rejection:**
+- `openclaw devices reject <requestId>` - Decline a pending pairing request
+
+**Token Management:**
+- `openclaw devices rotate --device <id> --role <role> [--scope <scope...>]` - Generate new token for specified role with optional scope updates
+- `openclaw devices revoke --device <id> --role <role>` - Invalidate a device token
+
+## Global Options
+
+Available across all commands:
+- `--url <url>` - Specify Gateway WebSocket address (uses `gateway.remote.url` config if omitted)
+- `--token <token>` - Authentication token
+- `--password <password>` - Password-based authentication
+- `--timeout <ms>` - Set RPC timeout duration
+- `--json` - Enable structured JSON output
+
+## Key Requirements & Notes
+
+- Token rotation produces sensitive credentials requiring secure handling
+- Operations require `operator.pairing` or `operator.admin` authorization scope
+- Bulk clearing requires explicit `--yes` flag as safety measure
+- Local loopback pairing fallback available when scopes unavailable without explicit `--url` parameter
+
+---
+## Cli > Node
+
+[Source: https://docs.openclaw.ai/cli/node]
+
+# Complete Documentation: `openclaw node`
+
+## Overview
+The `openclaw node` command runs a headless node host connecting to the Gateway WebSocket, exposing `system.run` and `system.which` capabilities on remote machines.
+
+## Primary Use Cases
+- Execute commands on distant Linux/Windows systems (build servers, lab equipment, NAS)
+- Keep execution sandboxed at the gateway while delegating approved runs elsewhere
+- Deploy lightweight, headless targets for automation or CI workflows
+
+All execution remains protected by exec approvals and per-agent allowlists.
+
+## Browser Proxy Feature
+Node hosts automatically advertise a browser proxy unless explicitly disabled. To disable:
+
+```json5
+{
+  nodeHost: {
+    browserProxy: {
+      enabled: false,
+    },
+  },
+}
+```
+
+## Foreground Execution
+Launch an interactive node host:
+
+```bash
+openclaw node run --host <gateway-host> --port 18789
+```
+
+**Available flags:**
+- `--host <host>`: Gateway WebSocket destination (default: `127.0.0.1`)
+- `--port <port>`: WebSocket port (default: `18789`)
+- `--tls`: Enable TLS for gateway connection
+- `--tls-fingerprint <sha256>`: Expected certificate fingerprint
+- `--node-id <id>`: Custom node identifier (clears existing token)
+- `--display-name <name>`: Custom display identifier
+
+## Background Service Installation
+Install as a persistent user service:
+
+```bash
+openclaw node install --host <gateway-host> --port 18789
+```
+
+**Installation flags:** Same as foreground, plus:
+- `--runtime <runtime>`: Service runtime selection (`node` or `bun`)
+- `--force`: Reinstall/overwrite existing installation
+
+**Service management commands:**
+```bash
+openclaw node status
+openclaw node stop
+openclaw node restart
+openclaw node uninstall
+```
+
+Service commands support `--json` for structured output.
+
+## Pairing Process
+Initial connections generate a pending pair request. Approve via:
+
+```bash
+openclaw nodes pending
+openclaw nodes approve <requestId>
+```
+
+Configuration stored in `~/.openclaw/node.json` includes node ID, token, display name, and gateway details.
+
+## Execution Controls
+`system.run` operations are restricted by:
+- Local exec approvals (`~/.openclaw/exec-approvals.json`)
+- Gateway-level management: `openclaw approvals --node <id|name|ip>`
+
+---
+## Cli > QR
+
+[Source: https://docs.openclaw.ai/cli/qr]
+
+# OpenClaw QR Command Documentation
+
+## Command Overview
+The `openclaw qr` command generates iOS pairing QR codes and setup codes from your current Gateway configuration.
+
+## Basic Usage Patterns
+The command supports several invocation styles:
+- Standard QR generation: `openclaw qr`
+- Setup code only output: `openclaw qr --setup-code-only`
+- JSON formatted output: `openclaw qr --json`
+- Remote gateway mode: `openclaw qr --remote`
+- Custom gateway specification: `openclaw qr --url wss://gateway.example/ws --token '<token>'`
+
+## Available Flags
+
+**URL & Authentication Options:**
+- `--remote`: Leverages `gateway.remote.url` with stored remote credentials
+- `--url <url>`: Replaces the gateway URL in the payload
+- `--public-url <url>`: Substitutes the public URL in the payload
+- `--token <token>`: Overrides gateway authentication token
+- `--password <password>`: Overrides gateway password
+
+**Output Formatting:**
+- `--setup-code-only`: Returns exclusively the setup code string
+- `--no-ascii`: Omits ASCII-rendered QR visualization
+- `--json`: Delivers structured JSON with setupCode, gatewayUrl, auth, and urlSource fields
+
+## Important Constraints
+The `--token` and `--password` options cannot be used simultaneously—select one authentication method.
+
+## Device Pairing Workflow
+After scanning the generated QR code, complete pairing approval through:
+- `openclaw devices list` to view pending requests
+- `openclaw devices approve <requestId>` to authorize the device
+
+---
+## Cli > Webhooks
+
+[Source: https://docs.openclaw.ai/cli/webhooks]
+
+# Webhooks Documentation
+
+## Overview
+The `openclaw webhooks` command provides webhook integration helpers, including Gmail Pub/Sub support and general webhook functionality.
+
+## Available Subcommands
+
+**Gmail Integration:**
+- `openclaw webhooks gmail setup --account you@example.com` - Initializes Gmail Pub/Sub
+- `openclaw webhooks gmail run` - Executes the Gmail webhook service
+
+## Related Resources
+- Webhook documentation: `/automation/webhook`
+- Gmail Pub/Sub details: `/automation/gmail-pubsub`
+
+## Key Points
+The command surfaces utilities for setting up and managing webhooks. The Gmail feature requires account configuration before running. Additional details about implementation and configuration are available in the dedicated Gmail Pub/Sub documentation section.

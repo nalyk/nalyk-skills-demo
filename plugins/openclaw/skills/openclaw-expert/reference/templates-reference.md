@@ -3511,4 +3511,43 @@ Skills:
 Skills
 Skills config
 USER
-Token Use and Costs
+Token Use and Costs---
+## Reference > Prompt Caching
+
+[Source: https://docs.openclaw.ai/reference/prompt-caching]
+
+# Prompt Caching Documentation Summary
+
+## Core Concept
+
+Prompt caching enables model providers to reuse unchanged prompt prefixes across conversation turns, reducing token costs and improving response speed. The system tracks cache writes on initial requests and reads from cache on subsequent matching requests.
+
+## Key Configuration Parameters
+
+### Cache Retention Settings
+
+The primary control is `cacheRetention`, configured at model or agent level with three options: "none," "short," or "long." As documented, "short" retention corresponds to 5-minute windows, while "long" enables 1-hour retention periods.
+
+Example configuration structure:
+- Model-level defaults under `agents.defaults.models`
+- Per-agent overrides under `agents.list[]`
+- Legacy `cacheControlTtl` values still work but are deprecated
+
+### Context Pruning
+
+"The system can prune older tool-result context after cache TTL windows so post-idle requests do not re-cache oversized history."
+
+### Heartbeat Configuration
+
+Heartbeat mechanisms keep cache windows active during idle periods, reducing repeated cache writes. Recommended setting: `every: "55m"` to maintain warm caches.
+
+## Provider-Specific Behavior
+
+- **Anthropic Direct API**: Full support; defaults to "short" retention when unset
+- **Amazon Bedrock**: Anthropic models pass through cache settings; non-Anthropic models forced to "none"
+- **OpenRouter**: Injects Anthropic cache control automatically for Claude model references
+- **Other providers**: Settings have no effect if unsupported
+
+## Diagnostic Tools
+
+Cache tracing captures detailed metrics through JSONL logs via `diagnostics.cacheTrace` configuration, with environment variable overrides (`OPENCLAW_CACHE_TRACE=1`) available for debugging specific sessions.

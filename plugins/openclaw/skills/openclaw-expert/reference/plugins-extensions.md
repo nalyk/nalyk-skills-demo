@@ -725,345 +725,6 @@ Unsupported schema nodes fall back to the raw JSON editor.
 Notes
 This doc is the single place to track protocol refactors for onboarding/config.
 Tests
-Cron Add Hardening
-
----
-## Experiments > Plans > Cron Add Hardening
-
-[Source: https://docs.openclaw.ai/experiments/plans/cron-add-hardening]
-
-Cron Add Hardening - OpenClaw
-OpenClaw
-home page
-English
-GitHub
-Releases
-Experiments
-Cron Add Hardening
-Install
-Channels
-Agents
-Tools
-Models
-Platforms
-Gateway &amp; Ops
-Reference
-Help
-CLI commands
-CLI Reference
-agent
-agents
-approvals
-browser
-channels
-configure
-cron
-dashboard
-directory
-dns
-docs
-doctor
-gateway
-health
-hooks
-logs
-memory
-message
-models
-nodes
-onboard
-pairing
-plugins
-reset
-Sandbox CLI
-security
-sessions
-setup
-skills
-status
-system
-tui
-uninstall
-update
-voicecall
-RPC and API
-RPC Adapters
-Device Model Database
-Templates
-Default AGENTS.md
-AGENTS.md Template
-BOOT.md Template
-BOOTSTRAP.md Template
-HEARTBEAT.md Template
-IDENTITY
-SOUL.md Template
-TOOLS.md Template
-USER
-Technical reference
-Wizard Reference
-Token Use and Costs
-grammY
-Concept internals
-TypeBox
-Markdown Formatting
-Typing Indicators
-Usage Tracking
-Timezones
-Project
-Credits
-Release notes
-Release Checklist
-Tests
-Experiments
-Onboarding and Config Protocol
-Cron Add Hardening
-Telegram Allowlist Hardening
-Workspace Memory Research
-Model Config Exploration
-Cron Add Hardening &amp; Schema Alignment
-Context
-Goals
-Non-goals
-Findings (current gaps)
-What changed
-Current behavior
-Verification
-Optional Follow-ups
-Open Questions
-Experiments
-Cron Add Hardening
-Cron Add Hardening &amp; Schema Alignment
-Context
-Recent gateway logs show repeated
-cron.add
-failures with invalid parameters (missing
-sessionTarget
-wakeMode
-payload
-, and malformed
-schedule
-). This indicates that at least one client (likely the agent tool call path) is sending wrapped or partially specified job payloads. Separately, there is drift between cron provider enums in TypeScript, gateway schema, CLI flags, and UI form types, plus a UI mismatch for
-cron.status
-(expects
-jobCount
-while gateway returns
-jobs
-Goals
-Stop
-cron.add
-INVALID_REQUEST spam by normalizing common wrapper payloads and inferring missing
-kind
-fields.
-Align cron provider lists across gateway schema, cron types, CLI docs, and UI forms.
-Make agent cron tool schema explicit so the LLM produces correct job payloads.
-Fix the Control UI cron status job count display.
-Add tests to cover normalization and tool behavior.
-Non-goals
-Change cron scheduling semantics or job execution behavior.
-Add new schedule kinds or cron expression parsing.
-Overhaul the UI/UX for cron beyond the necessary field fixes.
-Findings (current gaps)
-CronPayloadSchema
-in gateway excludes
-signal
-imessage
-, while TS types include them.
-Control UI CronStatus expects
-jobCount
-, but gateway returns
-jobs
-Agent cron tool schema allows arbitrary
-job
-objects, enabling malformed inputs.
-Gateway strictly validates
-cron.add
-with no normalization, so wrapped payloads fail.
-What changed
-cron.add
-and
-cron.update
-now normalize common wrapper shapes and infer missing
-kind
-fields.
-Agent cron tool schema matches the gateway schema, which reduces invalid payloads.
-Provider enums are aligned across gateway, CLI, UI, and macOS picker.
-Control UI uses the gateway’s
-jobs
-count field for status.
-Current behavior
-Normalization:
-wrapped
-data
-job
-payloads are unwrapped;
-schedule.kind
-and
-payload.kind
-are inferred when safe.
-Defaults:
-safe defaults are applied for
-wakeMode
-and
-sessionTarget
-when missing.
-Providers:
-Discord/Slack/Signal/iMessage are now consistently surfaced across CLI/UI.
-See
-Cron jobs
-for the normalized shape and examples.
-Verification
-Watch gateway logs for reduced
-cron.add
-INVALID_REQUEST errors.
-Confirm Control UI cron status shows job count after refresh.
-Optional Follow-ups
-Manual Control UI smoke: add a cron job per provider + verify status job count.
-Open Questions
-Should
-cron.add
-accept explicit
-state
-from clients (currently disallowed by schema)?
-Should we allow
-webchat
-as an explicit delivery provider (currently filtered in delivery resolution)?
-Onboarding and Config Protocol
-Telegram Allowlist Hardening
-
----
-## Experiments > Plans > Group Policy Hardening
-
-[Source: https://docs.openclaw.ai/experiments/plans/group-policy-hardening]
-
-Telegram Allowlist Hardening - OpenClaw
-OpenClaw
-home page
-English
-GitHub
-Releases
-Experiments
-Telegram Allowlist Hardening
-Install
-Channels
-Agents
-Tools
-Models
-Platforms
-Gateway &amp; Ops
-Reference
-Help
-CLI commands
-CLI Reference
-agent
-agents
-approvals
-browser
-channels
-configure
-cron
-dashboard
-directory
-dns
-docs
-doctor
-gateway
-health
-hooks
-logs
-memory
-message
-models
-nodes
-onboard
-pairing
-plugins
-reset
-Sandbox CLI
-security
-sessions
-setup
-skills
-status
-system
-tui
-uninstall
-update
-voicecall
-RPC and API
-RPC Adapters
-Device Model Database
-Templates
-Default AGENTS.md
-AGENTS.md Template
-BOOT.md Template
-BOOTSTRAP.md Template
-HEARTBEAT.md Template
-IDENTITY
-SOUL.md Template
-TOOLS.md Template
-USER
-Technical reference
-Wizard Reference
-Token Use and Costs
-grammY
-Concept internals
-TypeBox
-Markdown Formatting
-Typing Indicators
-Usage Tracking
-Timezones
-Project
-Credits
-Release notes
-Release Checklist
-Tests
-Experiments
-Onboarding and Config Protocol
-Cron Add Hardening
-Telegram Allowlist Hardening
-Workspace Memory Research
-Model Config Exploration
-Telegram Allowlist Hardening
-Summary
-What changed
-Examples
-Why it matters
-Related docs
-Experiments
-Telegram Allowlist Hardening
-Telegram Allowlist Hardening
-Date
-: 2026-01-05
-Status
-: Complete
-: #216
-Summary
-Telegram allowlists now accept
-telegram:
-and
-tg:
-prefixes case-insensitively, and tolerate
-accidental whitespace. This aligns inbound allowlist checks with outbound send normalization.
-What changed
-Prefixes
-telegram:
-and
-tg:
-are treated the same (case-insensitive).
-Allowlist entries are trimmed; empty entries are ignored.
-Examples
-All of these are accepted for the same ID:
-telegram:123456
-TG:123456
-tg:123456
-Why it matters
-Copy/paste from logs or chat IDs often includes prefixes and whitespace. Normalizing avoids
-false negatives when deciding whether to respond in DMs or groups.
-Related docs
-Group Chats
-Telegram Provider
-Cron Add Hardening
-Workspace Memory Research
 
 ---
 ## Experiments > Proposals > Model Config
@@ -1529,5 +1190,55 @@ References
 Letta / MemGPT concepts: “core memory blocks” + “archival memory” + tool-driven self-editing memory.
 Hindsight Technical Report: “retain / recall / reflect”, four-network memory, narrative fact extraction, opinion confidence evolution.
 SuCo: arXiv 2411.14754 (2024): “Subspace Collision” approximate nearest neighbor retrieval.
-Telegram Allowlist Hardening
 Model Config Exploration
+
+---
+## Plugins > Community
+
+[Source: https://docs.openclaw.ai/plugins/community]
+
+# OpenClaw Community Plugins Documentation
+
+## Overview
+
+This page catalogs "high-quality **community-maintained plugins** for OpenClaw." The platform accepts pull requests for community-created plugins that meet established quality standards.
+
+## Listing Requirements
+
+To be included, plugins must satisfy these criteria:
+
+- "Plugin package is published on npmjs (installable via `openclaw plugins install <npm-spec>`)"
+- Source code resides in a public GitHub repository
+- Documentation and issue tracking are available in the repository
+- Clear maintenance indicators are evident through active development or responsive support
+
+## Submission Process
+
+Contributors should open a pull request adding their plugin entry with:
+- Plugin name
+- npm package identifier
+- GitHub repository link
+- Brief single-line description
+- Installation command
+
+## Quality Standards
+
+The review process prioritizes "plugins that are useful, documented, and safe to operate." The team may decline submissions lacking sufficient documentation, unclear authorship, or evidence of abandonment.
+
+## Entry Template
+
+Plugins should follow this structure:
+```
+* **Name** — description
+  npm: `@scope/package`
+  repo: `https://github.com/org/repo`
+  install: `openclaw plugins install @scope/package`
+```
+
+## Current Plugin
+
+**WeChat Integration** — Enables connection to WeChat personal accounts through WeChatPadPro's iPad protocol, facilitating text, image, and file sharing with automation features.
+
+- npm: `@icesword760/openclaw-wechat`
+- repo: `https://github.com/icesword0760/openclaw-wechat`
+- install: `openclaw plugins install @icesword760/openclaw-wechat`
