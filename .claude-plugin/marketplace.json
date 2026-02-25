@@ -64,6 +64,14 @@
       "version": "2026.1.0",
       "keywords": ["code-review", "architecture", "diagnostics", "persona", "engineering", "critic", "cynical", "senior-engineer"],
       "category": "productivity"
+    },
+    {
+      "name": "flutter",
+      "source": "./plugins/flutter",
+      "description": "Expert-level Flutter and Dart development — architecture, state management, code templates, quality gates, CI/CD, and deployment",
+      "version": "1.0.0",
+      "keywords": ["flutter", "dart", "mobile", "cross-platform", "riverpod", "bloc", "widgets", "ios", "android"],
+      "category": "knowledge"
     }
   ]
 }
