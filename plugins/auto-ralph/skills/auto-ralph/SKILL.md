@@ -195,9 +195,26 @@ Execut? (max 25 iterații)
 
 ## Faza 5: Execuție
 
-Dacă "Da":
+Dacă "Da", folosește metoda **prompt-file** (OBLIGATORIU pentru a evita eroarea de newline în Bash):
+
+1. **Scrie prompt-ul** într-un fișier temporar cu Write tool:
+   ```
+   Write tool → /tmp/ralph-prompt.txt cu conținutul complet al prompt-ului generat
+   ```
+
+2. **Invocă ralph-loop** cu `--prompt-file` (comanda rămâne single-line):
+   ```bash
+   /ralph-loop --prompt-file /tmp/ralph-prompt.txt --max-iterations 25 --completion-promise "GATA"
+   ```
+
+**DE CE:** Claude Code Bash tool respinge comenzi cu newline-uri. Trecând prompt-ul multi-line
+ca argument inline cauzează `Bash command permission check failed`. Scrierea în fișier + `--prompt-file`
+rezolvă complet problema.
+
+**NU FOLOSI NICIODATĂ** această formă (va eșua):
 ```bash
-/ralph-loop "<prompt>" --max-iterations 25 --completion-promise "GATA"
+# BROKEN - newlines in $ARGUMENTS cause Bash rejection
+/ralph-loop "multi\nline\nprompt" --max-iterations 25 --completion-promise "GATA"
 ```
 
 ## Reguli Limbă
