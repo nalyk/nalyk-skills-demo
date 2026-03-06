@@ -72,6 +72,14 @@
       "version": "1.0.0",
       "keywords": ["flutter", "dart", "mobile", "cross-platform", "riverpod", "bloc", "widgets", "ios", "android"],
       "category": "knowledge"
+    },
+    {
+      "name": "organon",
+      "source": "./plugins/organon",
+      "description": "Philosophical reasoning engine: 62 principles from 20 philosophers as a live decision engine and code review framework. Auto-detects situations, selects principles, runs structured protocol, produces actionable output. Commands: /organon, /organon:decide, /organon:review",
+      "version": "1.0.0",
+      "keywords": ["philosophy", "decision-making", "reasoning", "code-review", "principles", "aristotle", "kant", "popper", "stoic"],
+      "category": "productivity"
     }
   ]
 }

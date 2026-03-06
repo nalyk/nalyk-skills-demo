@@ -1,0 +1,11 @@
+{
+  "name": "organon",
+  "version": "1.0.0",
+  "description": "Philosophical reasoning engine for engineering decisions. 62 principles from 20 philosophers, applied as a live decision engine and code review framework.",
+  "author": {
+    "name": "Lightcyphers SRL",
+    "url": "https://lightcyphers.com"
+  },
+  "license": "CC-BY-SA-4.0",
+  "keywords": ["philosophy", "decision-making", "code-review", "reasoning", "engineering-principles"]
+}
