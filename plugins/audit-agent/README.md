@@ -2,6 +2,12 @@
 
 Multi-framework audit agent with three complementary lenses for comprehensive product and code analysis.
 
+## Installation
+
+```bash
+/plugin install audit-agent@nalyk-skills-demo
+```
+
 ## The Three Frameworks
 
 | Framework | Focus | Best For | Questions/Metrics |

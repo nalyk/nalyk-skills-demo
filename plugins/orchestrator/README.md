@@ -2,6 +2,12 @@
 
 Multi-agent task orchestration with intelligent decomposition and parallel execution.
 
+## Installation
+
+```bash
+/plugin install orchestrator@nalyk-skills-demo
+```
+
 ## Features
 
 - **Auto-detection** of complex multi-part tasks

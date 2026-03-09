@@ -1,0 +1,25 @@
+seo-audit:
+  image: python:3.12-slim
+  stage: test
+  variables:
+    SITE_URL: "https://example.com"
+    MAX_PAGES: "100"
+  before_script:
+    - pip install beautifulsoup4 requests lxml aiohttp aiosqlite
+  script:
+    - python -m engine.cli audit $SITE_URL
+        --output audit-report.json
+        --compare
+        --fail-on-regression
+        --max-pages $MAX_PAGES
+  artifacts:
+    paths:
+      - audit-report.json
+    expire_in: 90 days
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - "**/*.html"
+        - "**/*.php"
+        - "**/*.jsx"
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'

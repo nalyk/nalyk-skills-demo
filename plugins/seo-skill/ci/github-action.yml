@@ -1,0 +1,78 @@
+name: SEO Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.html'
+      - '**/*.htm'
+      - '**/*.php'
+      - '**/*.jsx'
+      - '**/*.tsx'
+      - '**/*.vue'
+      - '**/*.svelte'
+  pull_request:
+    paths:
+      - '**/*.html'
+      - '**/*.htm'
+      - '**/*.php'
+      - '**/*.jsx'
+      - '**/*.tsx'
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly Monday 6am UTC
+
+jobs:
+  seo-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Claude SEO
+        run: |
+          pip install beautifulsoup4 requests lxml aiohttp aiosqlite
+
+      - name: Run SEO Audit
+        env:
+          PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
+        run: |
+          python -m engine.cli audit ${{ vars.SITE_URL }} \
+            --output audit-report.json \
+            --compare \
+            --fail-on-regression \
+            --max-pages 100
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let report = 'SEO audit data not available';
+            try {
+              const data = JSON.parse(fs.readFileSync('audit-report.json', 'utf8'));
+              report = `## SEO Audit Results\n\n`
+                + `**Score:** ${data.overall_score}/100\n`
+                + `**Pages crawled:** ${data.pages_crawled}\n`
+                + `**Issues:** ${data.issues_count}\n`
+                + `**Fixes available:** ${data.fixes_count}\n`;
+            } catch(e) {}
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+
+      - name: Upload Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-audit-${{ github.sha }}
+          path: audit-report.json
+          retention-days: 90

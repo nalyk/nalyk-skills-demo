@@ -2,6 +2,12 @@
 
 Deterministic Ralph Loop activation via UserPromptSubmit hook.
 
+## Installation
+
+```bash
+/plugin install auto-ralph@nalyk-skills-demo
+```
+
 ## v2.0 Changes
 
 **Problem solved:** In v1.0, skill activation was probabilistic - Claude had to recognize when to invoke the skill, which wasn't guaranteed.

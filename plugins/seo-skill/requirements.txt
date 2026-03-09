@@ -1,0 +1,22 @@
+# Claude SEO v2 — Python Dependencies
+# Last updated: March 2026
+
+# === Core (required) ===
+beautifulsoup4>=4.12.0,<5.0.0
+requests>=2.32.4,<3.0.0
+lxml>=6.0.2,<7.0.0
+urllib3>=2.6.3,<3.0.0
+validators>=0.22.0,<1.0.0
+
+# === v2 Engine (recommended) ===
+aiohttp>=3.11.0,<4.0.0           # Async crawler (10× faster crawling)
+aiosqlite>=0.21.0,<1.0.0         # Async SQLite for audit history
+
+# === Google Search Console (optional) ===
+google-api-python-client>=2.150.0,<3.0.0   # GSC API client
+google-auth>=2.36.0,<3.0.0                 # Service account auth
+google-auth-oauthlib>=1.2.0,<2.0.0         # OAuth for user accounts
+
+# === Optional ===
+playwright>=1.56.0,<2.0.0        # JS rendering checks (optional)
+Pillow>=12.1.0,<13.0.0           # Image analysis (optional)

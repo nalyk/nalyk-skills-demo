@@ -20,7 +20,7 @@ The organon is not a reference document — it is a **reasoning engine**. It aut
 ## Installation
 
 ```bash
-/plugin install organon@nalyk-skills
+/plugin install organon@nalyk-skills-demo
 ```
 
 ## Usage

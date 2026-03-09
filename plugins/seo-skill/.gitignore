@@ -1,0 +1,24 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+dist/
+build/
+.eggs/
+*.db
+.pytest_cache/
+.mypy_cache/
+*.log
+screenshots/
+
+# Secrets and credentials
+.env
+.env.*
+.env.*.local
+*.key
+*.pem
+*.p12
+credentials.json
+secrets.yaml
+secrets.yml

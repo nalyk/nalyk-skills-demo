@@ -16,10 +16,8 @@ A single-skill knowledge plugin that provides deep Flutter expertise through pha
 ## Install
 
 ```bash
-claude install-plugin /path/to/nalyk-skills/plugins/flutter
+/plugin install flutter@nalyk-skills-demo
 ```
-
-Or add to your Claude Code settings manually.
 
 ## Usage
 

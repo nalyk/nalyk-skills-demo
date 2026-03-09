@@ -13,7 +13,7 @@
       "name": "auto-ralph",
       "source": "./plugins/auto-ralph",
       "description": "Proactively detects tasks suitable for Ralph Loop iteration. Auto-scores tasks, generates prompts, and executes with configurable iterations.",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "keywords": ["automation", "iteration", "ralph-loop", "task-detection"],
       "category": "productivity"
     },
@@ -52,8 +52,8 @@
     {
       "name": "openclaw",
       "source": "./plugins/openclaw",
-      "description": "ULTRA deep OpenClaw expertise from all 264 documentation pages. Covers architecture, channels, providers, tools, CLI, multi-agent routing, security, automation, platforms, installation, and troubleshooting.",
-      "version": "1.0.0",
+      "description": "ULTRA deep OpenClaw expertise from all 279 documentation pages. Covers architecture, channels, providers, tools, CLI, multi-agent routing, security, automation, platforms, installation, and troubleshooting.",
+      "version": "1.1.0",
       "keywords": ["openclaw", "ai-gateway", "whatsapp", "telegram", "discord", "multi-channel", "self-hosted", "agents"],
       "category": "knowledge"
     },
@@ -80,6 +80,14 @@
       "version": "1.0.0",
       "keywords": ["philosophy", "decision-making", "reasoning", "code-review", "principles", "aristotle", "kant", "popper", "stoic"],
       "category": "productivity"
+    },
+    {
+      "name": "seo-skill",
+      "source": "./plugins/seo-skill",
+      "description": "Deterministic SEO analysis engine. 98 atomic checks, async multi-page crawler, real CWV via PageSpeed Insights, optional GSC integration, internal link graph with PageRank, auto-fix generation, audit history with regression detection. Commands: /seo audit, /seo fix, /seo technical, /seo content, /seo schema, /seo geo",
+      "version": "2.2.0",
+      "keywords": ["seo", "audit", "deterministic", "crawl", "pagespeed", "gsc", "schema", "eeat", "geo", "core-web-vitals", "link-graph", "pagerank"],
+      "category": "knowledge"
     }
   ]
 }
