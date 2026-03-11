@@ -1,49 +1,18 @@
 {
   "name": "seo-skill",
-  "description": "Deterministic SEO analysis engine. 98 atomic checks, async multi-page crawler, real CWV via PageSpeed Insights, optional GSC integration for real search data, internal link graph with PageRank, auto-fix generation, audit history with regression detection, and CI/CD integration.",
-  "version": "2.2.0",
+  "description": "Deterministic SEO analysis engine. 98 atomic checks, async multi-page crawler, real CWV via PageSpeed Insights, optional GSC integration for real search data, internal link graph with PageRank, auto-fix generation, audit history with regression detection, and CI/CD integration. Commands: /seo audit, /seo fix, /seo technical, /seo content, /seo schema, /seo geo",
+  "version": "2.2.1",
   "author": { "name": "nalyk" },
   "license": "MIT",
   "keywords": ["seo", "audit", "deterministic", "crawl", "pagespeed", "gsc", "schema", "eeat", "geo", "core-web-vitals"],
-  "entry_skill": "seo",
-  "engine": {
-    "type": "python",
-    "path": "engine/",
-    "cli": "python -m engine.cli",
-    "venv": ".venv/",
-    "requirements": "requirements.txt"
-  },
-  "skills": {
-    "seo": {"path": "skills/seo/SKILL.md", "description": "Main orchestrator and routing"},
-    "seo-audit": {"path": "skills/seo-audit/SKILL.md", "description": "Full site audit"},
-    "seo-fix": {"path": "skills/seo-fix/SKILL.md", "description": "Auto-fix generation"},
-    "seo-linkgraph": {"path": "skills/seo-linkgraph/SKILL.md", "description": "Link graph analysis"},
-    "seo-monitor": {"path": "skills/seo-monitor/SKILL.md", "description": "Regression tracking"},
-    "seo-logfile": {"path": "skills/seo-logfile/SKILL.md", "description": "Server log analysis"},
-    "seo-technical": {"path": "skills/seo-technical/SKILL.md", "description": "Technical SEO"},
-    "seo-content": {"path": "skills/seo-content/SKILL.md", "description": "E-E-A-T and content"},
-    "seo-schema": {"path": "skills/seo-schema/SKILL.md", "description": "Schema validation"},
-    "seo-sitemap": {"path": "skills/seo-sitemap/SKILL.md", "description": "Sitemap analysis"},
-    "seo-images": {"path": "skills/seo-images/SKILL.md", "description": "Image optimization"},
-    "seo-geo": {"path": "skills/seo-geo/SKILL.md", "description": "AI search / GEO"},
-    "seo-page": {"path": "skills/seo-page/SKILL.md", "description": "Single-page analysis"},
-    "seo-plan": {"path": "skills/seo-plan/SKILL.md", "description": "Strategic planning"},
-    "seo-programmatic": {"path": "skills/seo-programmatic/SKILL.md", "description": "Programmatic SEO"},
-    "seo-competitor-pages": {"path": "skills/seo-competitor-pages/SKILL.md", "description": "Competitor comparison"},
-    "seo-hreflang": {"path": "skills/seo-hreflang/SKILL.md", "description": "International SEO"}
-  },
+  "skills": "./skills/",
   "agents": [
-    "agents/seo-technical.md",
-    "agents/seo-content.md",
-    "agents/seo-schema.md",
-    "agents/seo-sitemap.md",
-    "agents/seo-performance.md",
-    "agents/seo-visual.md",
-    "agents/seo-linkgraph.md"
-  ],
-  "commands": {
-    "audit": "cd {install_dir} && {python} -m engine.cli audit {url} --compare --output report.md",
-    "history": "cd {install_dir} && {python} -m engine.cli history {url}",
-    "audit-json": "cd {install_dir} && {python} -m engine.cli audit {url} --output audit.json"
-  }
+    "./agents/seo-technical.md",
+    "./agents/seo-content.md",
+    "./agents/seo-schema.md",
+    "./agents/seo-sitemap.md",
+    "./agents/seo-performance.md",
+    "./agents/seo-visual.md",
+    "./agents/seo-linkgraph.md"
+  ]
 }
